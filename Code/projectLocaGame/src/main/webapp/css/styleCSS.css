@@ -1,0 +1,446 @@
+
+/*______ global css ______*/
+
+*{
+    font-family: sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+#header{
+    background-color: #000000;
+    color: #ffffff;
+    font-size: 18px;
+    padding: 10px;
+}
+#menu{
+    background-color: #000000;
+    color: #ffffff;
+    font-size: 14px;
+    width: 20%;
+    min-width: 120px;
+    max-width: 300px;
+}
+#body{
+    background-color: #fff2cc;
+    color: #000000;
+    font-size: 14px;
+}
+#content{
+    padding: 10px;
+}
+#footer{
+    background-color: #000000;
+    color: #ffffff;
+    font-size: 14px;
+    padding: 10px;
+}
+#footerBottom{
+    position: fixed;
+    z-index: -1;
+    background-color: #000;
+    width: 100%;
+    height: 2000px;
+    left: 0;
+}
+
+.visibilityHidden{
+    visibility : hidden;
+}
+
+.inlineBlock{
+    display: inline-block;
+}
+
+.containerFlex{
+    display: flex;
+}
+.flexGrowOne{
+    flex-grow: 1;
+}
+
+.colorGreen{
+    color: #689f38;
+}
+.colorOrange{
+    color: #ce8600;
+}
+.colorRed{
+    color: #d32f2f;
+}
+.colorSilver{
+    color: silver;
+}
+
+.textCenter{
+    text-align: center;
+}
+
+.marginTop40px{
+    margin-top: 40px;
+}
+.marginBottom40px{
+    margin-bottom: 40px;
+}
+
+/*______ formulary css ______*/
+
+.responsiveForm{
+    width: 50%;
+    min-width : 600px;
+    margin : 0 auto;
+}
+
+.responsiveInput{
+    width : 100%;
+    /*display: flex;*/
+}
+
+.responsiveInput > *, .responsiveSubmit{
+     /*width: 32%;*/
+
+     display: flex;
+}
+
+.responsiveInput > *:first-child > *{
+    width : 50%;
+}
+
+.responsiveInput > *:first-child > *:nth-child(2) > *:first-child{
+    width: 100%;
+}
+
+.responsiveInput > *:nth-child(1n+2){
+    width: 99%;
+    margin : 10px 0;
+}
+
+.responsiveSubmit > *{
+    width: 25%;
+    margin : 15px 12.5% !important;
+}
+
+.positionCancel{
+    margin-top: -66.67px;
+}
+
+.placeMessageErrorCustomParent{
+    width: 100%;
+}
+
+.placeMessageErrorCustomChild{
+    width: 100%;
+    margin-left: 0px;
+}
+
+
+.responsiveForm .titreSectionH3{
+    margin: 15px 0;
+    text-align: center;
+}
+
+.responsiveManyToMany{
+    display: flex;
+}
+.responsiveManyToMany > *{
+    width: 50%;
+    margin: 0;
+    padding: 0;
+}
+.responsiveManyToMany h4{
+    margin-bottom: 10px;
+}
+.scrollPanelManyToMany{
+    width: 100% !important;
+    height: 200px;
+}
+.manyToManyNotFoundMessage{
+    text-align: center;
+    color: silver;
+    margin-top: 10px;
+    border: none !important;
+    display: block !important;
+}
+.scrollPanelManyToMany > *:first-child, .scrollPanelManyToMany > *:first-child > *:first-child{
+    width: 100% !important;
+}
+.manyToManyRow{
+    width: 100%;
+    border-bottom: 1px #ddd solid;
+    padding: 5px 8px;
+    display: flex;
+}
+.manyToManyRow > div:first-child{
+    /*flex-grow: 9;*/
+    width: 80%;
+    display: inline-block;
+
+    padding-top: 10px;
+    padding-left: 5px;
+}
+.manyToManyRow > div:nth-child(2){
+    /*flex-grow: 1;*/
+    width: 15%;
+    display: inline-block;
+}
+.manyToManyRow > div:nth-child(2) > *:nth-child(1n+2){
+    margin-left: 5px;
+}
+.lineManyToManyWithoutButton > div:first-child{
+    padding-bottom: 5px;
+}
+
+.checkBoxForm > * > *{
+    color: black;
+    background-color: #fbc02d !important;
+}
+
+
+/*______ title css ______*/
+
+h2{
+    text-align : center ;
+    margin : 20px 0 ;
+    font-size: 30px;
+}
+
+/*______ header css ______*/
+
+#header #headerLogoBlock{
+    width: fit-content;
+    text-align: center;
+}
+#header #headerLogo{
+    height: 80px;
+}
+
+
+#header #headerLoginBlock{
+    text-align: right;
+}
+
+#header .headerMenuButton{
+    margin-top: 10px;
+}
+#header .headerLanguageButton{
+    margin-top: 10px;
+}
+
+/*______ menu css ______*/
+
+#menu a{
+    text-decoration: none;
+    color: #ffffff;
+}
+#menu a:hover{
+    margin-left: 3px;
+}
+
+/*______ footer css ______*/
+
+#footer > p{
+    text-align: center;
+    font-style: italic;
+}
+
+#footer .blockFooter:nth-child(1n+2){
+    border-left: solid white 3px;
+}
+
+/*______ other css ______*/
+
+#container {
+width:100%;
+}
+#content {
+float:left;
+width:100%;
+}
+#footer {
+clear:both; /*No floating elements are allowed on left or right*/
+text-align:center;
+font-weight: bold;
+}
+.errorMessage {
+color: red;
+}
+
+/*______ table css ______*/
+
+body .tableHeaderTitleCenter table thead th,
+body .tableHeaderTitleCenter table tbody td{
+    text-align: center;
+}
+.tableHeaderNoPadding > div.ui-datatable-header{
+    margin: 0;
+    padding: 0 !important;
+}
+.containerTableHeaderFilter:nth-child(1) > *{
+    padding: 16px;
+}
+.containerTableHeaderFilter:nth-child(1) input{
+    width: 70%;
+    min-width: 300px;
+}
+.containerTableHeaderFilter > * > input{
+    width: 100%;
+}
+.containerTableHeaderFilter > * > i{
+    display: block;
+    width: 16px;
+    font-size: 16px;
+
+    text-align: center;
+    margin: 8px auto 0 auto;
+}
+.containerTableHeaderFilter > * > i:hover{
+    color: #c0c0c0;
+}
+.containerRedirectButtonTable{
+    text-align: right;
+}
+.containerRedirectButtonTable > button{
+    margin-right: 10px;
+}
+.containerRedirectButtonTable > button:last-child{
+    margin-right: 0;
+}
+
+.disabledButtonIcon{
+    color: silver;
+}
+
+.wordResearch{
+    color: #b6891a;
+}
+
+
+
+
+button[type="hidden"]{
+    visibility: hidden;
+    width: 0;
+    height: 0;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    font-size: 0;
+}
+
+.hidden{
+    visibility: hidden;
+    width: 0;
+    height: 0;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    font-size: 0;
+    display : none !important;
+}
+.hiddenBlock{
+    visibility: hidden;
+}
+
+
+button[type="hidden"] > *{
+    display: none;
+}
+
+/**/
+
+#imageHomePageContainer{
+    position: absolute;
+    left: 0;
+    top: 148px;
+    width: 100%;
+}
+
+#titleHomePageH2{
+    z-index: 1;
+    position: absolute;
+    width: 100%;
+    background-color: rgb(255,255,255, 0.4);
+    left: 0;
+    margin-top: 30px;
+    padding: 5px 0;
+}
+
+#containerHomePage{
+    margin-bottom: 60%;
+    margin-top: -10px;
+}
+
+/*___ detail product ___*/
+
+.crudButtonContainer > span{
+    display: flex;
+    justify-content: right;
+    flex-grow: 1;
+}
+.crudButtonContainer > span > *{
+    display: inline;
+}
+.crudButtonContainer > span > *:nth-child(1n+2){
+    margin-left: 5px;
+}
+
+.buttonProductMode > *{
+    width: 50% !important;
+    margin: 15px 25% !important;
+}
+
+.manyToManyError{
+    width: 100%;
+    margin: 5px 0 5px 0 !important;
+}
+
+
+/*___ input file ___*/
+.imageFilePrint{
+    width: 100%;
+    height: 200px;
+    margin-top: 5px;
+    border-radius: 3px;
+}
+
+.inputImageFileSimpleTree>*:nth-child(2){
+    display: none;
+}
+.inputImageFileSimpleTree>*:first-child{
+    background: none !important;
+    border: none !important;
+    color: black !important;
+    padding: 0 0 !important;
+}
+.inputImageFileSimpleTree>*:first-child>*:first-child{
+    width: 100%;
+    color: black;
+    background-color: orange;
+    border: none;
+}
+.inputImageFileSimpleTree>*:first-child>*:first-child>*:first-child{
+    /*display: none !important;*/
+}
+.inputImageFileSimpleTree .ui-fileupload-upload{
+    width: 50%;
+}
+.inputImageFileSimpleTree .ui-fileupload-cancel{
+    width: 49%;
+    margin-left: 3px;
+}
+.inputImageFileSimpleTree .ui-fileupload-cancel,
+.inputImageFileSimpleTree .ui-fileupload-upload{
+    /*display: none !important;*/
+    margin-right: 0 !important;
+    background-color: orange;
+    border: none;
+    color: black;
+    margin-top: 2px;
+}
+.inputImageFileSimpleTree .ui-fileupload-cancel:active,
+.inputImageFileSimpleTree .ui-fileupload-upload:active,
+.inputImageFileSimpleTree .ui-fileupload-cancel:hover,
+.inputImageFileSimpleTree .ui-fileupload-upload:hover{
+    background-color: orange !important;
+    color: black !important;
+}

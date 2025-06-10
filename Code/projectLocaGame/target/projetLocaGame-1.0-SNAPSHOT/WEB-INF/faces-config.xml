@@ -1,0 +1,28 @@
+<faces-config version="2.1"
+              xmlns="http://java.sun.com/xml/ns/javaee"
+              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:schemaLocation="http://java.sun.com/xml/ns/javaee
+                http://java.sun.com/xml/ns/javaee/web-facesconfig_2_1.xsd">
+    <application>
+        <locale-config>
+            <default-locale>fr</default-locale>
+            <supported-locale>fr</supported-locale>
+            <supported-locale>en</supported-locale>
+        </locale-config>
+        <resource-bundle>
+            <base-name>language.messages</base-name>
+            <var>I18N</var>
+        </resource-bundle>
+
+        <!-- navigation si besoin voir page 51 du cours -->
+
+
+
+    </application>
+</faces-config>
+<!--<faces-config>-->
+<!--    <converter>-->
+<!--        <converter-id>CityConverter</converter-id>-->
+<!--        <converter-class>java.adrien.faouzi.convectorCustom.CityConverter</converter-class>-->
+<!--    </converter>-->
+<!--</faces-config>-->

@@ -1,0 +1,288 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:a="http://xmlns.jcp.org/jsf/passthrough"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:h="http://java.sun.com/jsf/html">
+
+<!-- ______ ______ -->
+
+<ui:composition template="/WEB-INF/templates/simple.xhtml">
+    <ui:define name="title">
+        <h:outputText value="#{I18N['application.header.createpriceplatform']}" rendered="#{pricePlatformBean.isModeSelected('c')}"/>
+        <h:outputText value="#{I18N['application.header.detailpriceplatform']}" rendered="#{pricePlatformBean.isModeSelected('r')}"/>
+        <h:outputText value="#{I18N['application.header.editpriceplatform']}" rendered="#{pricePlatformBean.isModeSelected('u')}"/>
+    </ui:define>
+    <ui:define name="content">
+
+        <!-- load priceplatform selected from other page. + save historic.-->
+        <f:metadata>
+            <f:event type="preRenderView" listener="#{pricePlatformBean.loadPricePlatformSelected(pricePlatformListBean)}"/>
+            <f:event type="preRenderView" listener="#{historicalBean.saveNewPageHistoric('/view/crudPricePlatform')}"/>
+        </f:metadata>
+
+        <div class ="containers">
+
+            <!-- error loading message -->
+            <p:outputPanel rendered="#{pricePlatformBean.elementCrudIsErrorLoad()}">
+                <h2>
+                    <h:outputText value="#{I18N['application.crudpage.errorloadtitle']}"/>
+                </h2>
+                <p class="textCenter">
+                    <h:outputText value="#{I18N['application.crudpriceplatformpage.errorloadpriceplatformmessage']}"/>
+                </p>
+            </p:outputPanel>
+
+            <!-- no error -->
+            <p:outputPanel rendered="#{pricePlatformBean.elementCrudIsSuccessLoad()}">
+
+                <div>
+                    <h2>
+                        <h:outputText value="#{I18N['application.crudpriceplatformpage.titlepagecreate']}"
+                                      rendered="#{pricePlatformBean.isModeSelected('c')}"/>
+                        <h:outputText value="#{I18N['application.crudpriceplatformpage.titlepageread']}"
+                                      rendered="#{pricePlatformBean.isModeSelected('r')}"/>
+                        <h:outputText value="#{I18N['application.crudpriceplatformpage.titlepageupdate']}"
+                                      rendered="#{pricePlatformBean.isModeSelected('u')}"/>
+                    </h2>
+                </div>
+
+                <!-- Main form start ________________________________________________________________ -->
+                <h:form class="responsiveForm" id="formCrudPricePlatform">
+
+                    <div>
+                        <h3 class="titreSectionH3">
+                            <h:outputText value="#{I18N['application.crudpriceplatformpage.titlepriceplatform']}"/>
+                        </h3>
+                    </div>
+
+                    <!-- select product (combo box) -->
+                    <p:outputPanel class="responsiveInput">
+                        <span>
+                            <p:outputLabel for="inputProduct" value="#{I18N['application.crudpriceplatformpage.labelproduct']}"/>
+                            <p:selectOneMenu id="inputProduct"
+                                             value="#{pricePlatformBean.elementCrudSelected.idProduct}"
+                                             disabled="#{pricePlatformBean.isModeSelected('r')}"
+                                             required="true"
+                                             validatorMessage="#{I18N['application.crudpriceplatformpage.messageerrorproduct']}"
+                                             converter="ProductConverter"
+                                             effect="fade"
+                                             var="p"
+                                             filter="true"
+                                             filterMatchMode="startsWith">
+                                <!-- reload list product from db. -->
+                                <f:metadata>
+                                    <f:event type="preRenderView" listener="#{pricePlatformBean.initAllProduct()}"/>
+                                </f:metadata>
+                                <f:selectItem itemLabel="#{I18N['application.crudpriceplatformpage.placeholderproduct']}"
+                                              itemValue="#{null}"/>
+                                <f:selectItems value="#{pricePlatformBean.allProduct}"
+                                               var="product"
+                                               itemLabel="#{product.productName}"
+                                               itemValue="#{product}"/>
+                                <p:column>
+                                    <f:facet name="header">
+                                        <h:outputText value="#{I18N['application.listpage.name']}"/>
+                                    </f:facet>
+                                    <h:outputText value="#{p.productName}"/>
+                                </p:column>
+                                <p:ajax event="change" update="messageProduct"/>
+                            </p:selectOneMenu>
+                        </span>
+                        <p:message id="messageProduct" for="inputProduct"/>
+                    </p:outputPanel>
+
+                    <!-- select platform (combo box) -->
+                    <p:outputPanel class="responsiveInput">
+                        <span>
+                            <p:outputLabel for="inputPlatform" value="#{I18N['application.crudpriceplatformpage.labelplatform']}"/>
+                            <p:selectOneMenu id="inputPlatform"
+                                             value="#{pricePlatformBean.elementCrudSelected.idPlatform}"
+                                             disabled="#{pricePlatformBean.isModeSelected('r')}"
+                                             required="true"
+                                             validatorMessage="#{I18N['application.crudpriceplatformpage.messageerrorplatform']}"
+                                             converter="PlatformConverter"
+                                             effect="fade"
+                                             var="p"
+                                             filter="true"
+                                             filterMatchMode="startsWith">
+                                <!-- reload list platform from db. -->
+                                <f:metadata>
+                                    <f:event type="preRenderView" listener="#{pricePlatformBean.initAllPlatform()}"/>
+                                </f:metadata>
+                                <f:selectItem itemLabel="#{I18N['application.crudpriceplatformpage.placeholderplatform']}"
+                                              itemValue="#{null}"/>
+                                <f:selectItems value="#{pricePlatformBean.allPlatform}"
+                                               var="platform"
+                                               itemLabel="#{platform.platformName}"
+                                               itemValue="#{platform}"/>
+                                <p:column>
+                                    <f:facet name="header">
+                                        <h:outputText value="#{I18N['application.listpage.name']}"/>
+                                    </f:facet>
+                                    <h:outputText value="#{p.platformName}"/>
+                                </p:column>
+                                <p:ajax event="change" update="messagePlatform"/>
+                            </p:selectOneMenu>
+                        </span>
+                        <p:message id="messagePlatform" for="inputPlatform"/>
+                    </p:outputPanel>
+
+                    <!-- available stock (disabled) -->
+                    <p:outputPanel class="responsiveInput">
+                        <span>
+                            <p:outputLabel for="inputAvailableStock" value="#{I18N['application.crudpriceplatformpage.labelavailablestock']}"/>
+                            <p:inputNumber
+                                    id="inputAvailableStock"
+                                    disabled="true"
+                                    value="#{pricePlatformBean.elementCrudSelected.availableStock}">
+                            </p:inputNumber>
+                        </span>
+                    </p:outputPanel>
+
+                    <!-- input int rentalPrice -->
+                    <p:outputPanel class="responsiveInput marginTop40px">
+                        <span>
+                            <p:outputLabel for="inputRentalPrice" value="#{I18N['application.crudpriceplatformpage.labelrentalprice']}"/>
+                            <p:inputNumber
+                                    id="inputRentalPrice"
+                                    required="true"
+                                    decimalPlaces="2"
+                                    disabled="#{pricePlatformBean.isModeSelected('r')}"
+                                    value="#{pricePlatformBean.elementCrudSelected.rentalPrice}"
+                                    placeholder="#{I18N['application.crudpriceplatformpage.placeholderrentalprice']}"
+                                    validatorMessage="#{I18N['application.crudpriceplatformpage.messageerrorrentalprice']}">
+                                <p:ajax event="keyup" update="messageRentalPrice"/>
+                            </p:inputNumber>
+                        </span>
+                        <p:message id="messageRentalPrice" for="inputRentalPrice"/>
+                    </p:outputPanel>
+
+                    <!-- input int latePrice -->
+                    <p:outputPanel class="responsiveInput">
+                        <span>
+                            <p:outputLabel for="inputLatePrice" value="#{I18N['application.crudpriceplatformpage.labellateprice']}"/>
+                            <p:inputNumber
+                                    id="inputLatePrice"
+                                    required="true"
+                                    decimalPlaces="2"
+                                    disabled="#{pricePlatformBean.isModeSelected('r')}"
+                                    value="#{pricePlatformBean.elementCrudSelected.latePrice}"
+                                    placeholder="#{I18N['application.crudpriceplatformpage.placeholderlateprice']}"
+                                    validatorMessage="#{I18N['application.crudpriceplatformpage.messageerrorlateprice']}">
+                                <p:ajax event="keyup" update="messageLatePrice"/>
+                            </p:inputNumber>
+                        </span>
+                        <p:message id="messageLatePrice" for="inputLatePrice"/>
+                    </p:outputPanel>
+
+                    <!-- input boolean enable -->
+                    <p:outputPanel class="responsiveInput">
+                        <span>
+                            <p:outputLabel for="inputPricePlatformEnable" value="#{I18N['application.crudpriceplatformpage.labelpriceplatformenable']}"/>
+                            <p:selectBooleanCheckbox
+                                    class="ui-button-warning checkBoxForm"
+                                    disabled="#{pricePlatformBean.isModeSelected('r')}"
+                                    value="#{pricePlatformBean.elementCrudSelected.enable}"
+                                    id="inputPricePlatformEnable"/>
+                        </span>
+                        <p:message id="messagePricePlatformEnable" for="inputPricePlatformEnable"/>
+                    </p:outputPanel>
+
+                    <!-- input image file -->
+                    <p:outputPanel class="responsiveInput">
+                        <span>
+                            <p:outputLabel for="inputImageFile" value="#{I18N['application.crudpriceplatformpage.labelinputimagefile']}"/>
+                            <span class="marginBottom40px">
+                                <p:fileUpload value="#{pricePlatformBean.imageFile}"
+                                              mode="advanced"
+                                              listener="#{pricePlatformBean.fileUploadListener}"
+                                              auto="true"
+                                              update=":formCrudPricePlatform:imageFilePrint"
+                                              allowTypes="/(\.|\/)(jpe?g|png)$/"
+                                              sizeLimit="102400"
+                                              invalidSizeMessage="#{I18N['application.crudpriceplatformpage.errorsizeimagefile']}"
+                                              invalidFileMessage="#{I18N['application.crudpriceplatformpage.errortypeimagefile']}"
+                                              id="inputImageFile"
+                                              class="inputImageFileSimpleTree"
+                                              rendered="#{pricePlatformBean.isNotModeSelected('r')}"/>
+                                <h:graphicImage url="#{pricePlatformBean.getUrlImage()}"
+                                                id="imageFilePrint"
+                                                class="imageFilePrint"
+                                                alt="image"/>
+                            </span>
+                        </span>
+                    </p:outputPanel>
+
+
+                    <!-- input submit -->
+
+
+                    <!-- message error submit -->
+                    <p:outputPanel class="responsiveInput ui-message ui-message-error ui-widget ui-corner-all manyToManyError"
+                                   rendered="#{pricePlatformBean.getErrorSubmitDB()}"
+                                   role="alert" aria-atomic="true" aria-live="polite">
+                        <div>
+                            <span class="ui-message-error-icon"> </span>
+                            <span class="ui-message-error-detail message-succes-detail" >
+                                    <h:outputText value="#{I18N['application.crudpage.messageerrorsubmit']}"/>
+                                </span>
+                        </div>
+                    </p:outputPanel>
+
+                    <span class="responsiveSubmit">
+                        <p:commandButton value="#{I18N['application.crudpage.buttoncreatesubmit']}"
+                                         rendered="#{pricePlatformBean.isModeSelected('c')}"
+                                         ajax="false"
+                                         validateClient="true"
+                                         class="ui-button-success"
+                                         action="#{pricePlatformBean.submitForm(historicalBean, connectionBean.verifyPermissionUser('priceplatform:insert'))}"/>
+                        <p:commandButton value="#{I18N['application.crudpage.buttonaddbasket']}"
+                                         rendered="#{pricePlatformBean.isModeSelected('r')}"
+                                         disabled="#{!(pricePlatformBean.elementCrudSelected.getEnableForDisabledButtonPermission(connectionBean.verifyPermissionUser('priceplatform:addbasket')))}"
+                                         ajax="false"
+                                         validateClient="true"
+                                         class="ui-button-success"
+                                         action="#{pricePlatformListBean.AddBasket(pricePlatformBean.elementCrudSelected.id, pricePlatformBean.elementCrudSelected.getEnableForDisabledButtonPermission(connectionBean.verifyPermissionUser('priceplatform:addbasket')))}"/>
+                        <p:commandButton value="#{I18N['application.crudpage.buttonupdatesubmit']}"
+                                         rendered="#{pricePlatformBean.isModeSelected('u')}"
+                                         ajax="false"
+                                         validateClient="true"
+                                         class="ui-button-success"
+                                         action="#{pricePlatformBean.submitForm(historicalBean, connectionBean.verifyPermissionUser('priceplatform:update'))}"/>
+                    </span>
+
+                </h:form>
+
+                <div class="responsiveForm positionCancel">
+                    <span class="responsiveSubmit">
+                        <span class="flexGrowOne"> </span>
+                            <p:commandButton id="cancelButtonSignUp"
+                                             value="#{I18N['application.crudpage.buttonbacklastpage']}"
+                                             action="#{historicalBean.backLastPageHistoric()}"
+                                             class="ui-button-danger"
+                                             immediate="true"/>
+                    </span>
+                </div>
+
+                <!-- message i18n for add basket processing -->
+                <p:outputPanel class="hidden">
+                    <span class="successAddBasket">
+                        <h:outputText value="#{I18N['application.listpage.successaddbasket']}"/>
+                    </span>
+                </p:outputPanel>
+
+                <!-- Main form end ________________________________________________________________ -->
+
+            </p:outputPanel>
+
+        </div>
+
+    </ui:define>
+</ui:composition>
+
+<!-- ______ ______ -->
+
+</html>

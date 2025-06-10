@@ -1,0 +1,477 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:jsp="http://java.sun.com/JSP/Page"
+      xmlns:c="http://java.sun.com/jsp/jstl/core"
+      xmlns:ui="http://java.sun.com/jsf/facelets" xmlns:h="http://java.sun.com/jsf/html">
+
+<!-- ______ ______ -->
+
+<ui:composition template="/WEB-INF/templates/simple.xhtml">
+    <ui:define name="title">
+        <h:outputText value="#{I18N['application.header.createproduct']}" rendered="#{pricePlatformBean.isModeSelected('c')}"/>
+        <h:outputText value="#{I18N['application.header.detailproduct']}" rendered="#{pricePlatformBean.isModeSelected('r')}"/>
+        <h:outputText value="#{I18N['application.header.editproduct']}" rendered="#{pricePlatformBean.isModeSelected('u')}"/>
+    </ui:define>
+    <ui:define name="content">
+
+        <!-- load price platform selected from other page. + save historic.-->
+        <f:metadata>
+            <f:event type="preRenderView" listener="#{pricePlatformBean.loadPricePlatformSelected(pricePlatformListBean)}"/>
+            <f:event type="preRenderView" listener="#{historicalBean.saveNewPageHistoric('/view/detailProduct')}"/>
+        </f:metadata>
+
+        <div class ="containers">
+
+            <!-- error loading message -->
+            <p:outputPanel rendered="#{pricePlatformBean.pricePlatformSelectedIsErrorLoad()}">
+                <h2>
+                    <h:outputText value="#{I18N['application.crudpage.errorloadtitle']}"/>
+                </h2>
+                <p class="textCenter">
+                    <h:outputText value="#{I18N['application.crudproductpage.errorloadproductmessage']}"/>
+                </p>
+            </p:outputPanel>
+
+            <!-- no error -->
+            <p:outputPanel rendered="#{!pricePlatformBean.pricePlatformSelectedIsErrorLoad()}">
+
+                <div>
+                    <h2>
+                        <h:outputText value="#{I18N['application.crudproductpage.titlepagecreate']}"
+                                      rendered="#{productBean.isModeSelected('c')}"/>
+                        <h:outputText value="#{I18N['application.crudproductpage.titlepageread']}"
+                                      rendered="#{productBean.isModeSelected('r')}"/>
+                        <h:outputText value="#{I18N['application.crudproductpage.titlepageupdate']}"
+                                      rendered="#{productBean.isModeSelected('u')}"/>
+                    </h2>
+                </div>
+
+                <!-- Main form start ________________________________________________________________ -->
+                <h:form class="responsiveForm" id="detailProductForm">
+
+                    <div>
+                        <h3 class="titreSectionH3">
+                            <h:outputText value="#{I18N['application.crudproductpage.titleproduct']}"/>
+                        </h3>
+                    </div>
+
+                    <p:outputPanel class="responsiveInput" rendered="#{pricePlatformBean.getEditModeForProductNeutral()}">
+                        <span>
+                            <p:outputLabel for="inputIsProdcutSelectorModeSelector" value=""/>
+                        </span>
+                    </p:outputPanel>
+                    <p:outputPanel class="responsiveInput" rendered="#{pricePlatformBean.getEditModeForProductNeutral()}">
+                        <span>
+                            <span class="buttonProductMode">
+                                <p:commandButton id="inputIsProdcutSelectorModeSelector"
+                                                 value="oui"
+                                                 action="#{pricePlatformBean.editProductSelector()}"
+                                                 update="@form"
+                                                 class="ui-button-success"
+                                                 immediate="true"/>
+                            </span>
+                            <span class="buttonProductMode">
+                                <p:commandButton id="inputIsProdcutSelectorModeInput"
+                                                 value="non"
+                                                 action="#{pricePlatformBean.editProductInput()}"
+                                                 update="@form"
+                                                 class="ui-button-danger"
+                                                 immediate="true"/>
+                            </span>
+                        </span>
+                    </p:outputPanel>
+
+                    <p:outputPanel class="responsiveInput" rendered="#{pricePlatformBean.renderProductSelector()}">
+                        <span>
+                            <p:outputLabel for="inputProductSelector" value="no product"/>
+                            <p:selectOneMenu id="inputProductSelector"
+                                             value="#{pricePlatformBean.productSelectedId}"
+                                             immediate="true">
+                                <!-- reload list editor from db. -->
+                                <f:metadata>
+                                    <f:event type="preRenderView" listener="#{pricePlatformBean.initAllProduct()}"/>
+                                </f:metadata>
+                                <f:selectItem itemLabel="new product"
+                                              itemValue="#{0}"/>
+                                <f:selectItems value="#{pricePlatformBean.allProduct}"
+                                               var="product"
+                                               itemLabel="#{product.productName}"
+                                               itemValue="#{product.id}"/>
+
+                                <p:ajax event="change" action="#{pricePlatformBean.inputProductSelectorOnChange()}" update="@form"/>
+
+                            </p:selectOneMenu>
+                        </span>
+                        <p:message id="messageProductSelector" for="inputProductSelector"/>
+                    </p:outputPanel>
+
+                    <p:outputPanel class="responsiveInput" rendered="#{pricePlatformBean.renderProductInput()}">
+                        <span>
+                            <p:outputLabel for="inputProductName" value="#{I18N['application.crudproductpage.labelproductname']}"/>
+                            <p:inputText id="inputProductName"
+                                         required="true"
+                                         value="#{pricePlatformBean.pricePlatformSelected.idProduct.productName}"
+                                         disabled="#{pricePlatformBean.inputProductDisabled()}"
+                                         placeholder="#{I18N['application.crudproductpage.placeholderproductname']}"
+                                         validatorMessage="#{I18N['application.crudproductpage.messageerrorproductname']}">
+
+                                <p:ajax event="keyup" update="messageProductName"/>
+
+                            </p:inputText>
+                        </span>
+                        <p:message id="messageProductName" for="inputProductName"/>
+                    </p:outputPanel>
+
+                    <p:outputPanel class="responsiveInput" rendered="#{pricePlatformBean.renderProductInput()}">
+                        <span>
+                            <p:outputLabel for="inputProductEditor" value="#{I18N['application.crudproductpage.labelproducteditor']}"/>
+                            <p:selectOneMenu id="inputProductEditor"
+                                             value="#{pricePlatformBean.editorSelectedId}"
+                                             disabled="#{pricePlatformBean.inputProductDisabled}"
+                                             required="true"
+                                             validatorMessage="#{I18N['application.crudproductpage.messageerrorproducteditor']}">
+                                <!-- reload list editor from db. -->
+                                <f:metadata>
+                                    <f:event type="preRenderView" listener="#{pricePlatformBean.initAllEditor()}"/>
+                                </f:metadata>
+                                <f:selectItem itemLabel="#{I18N['application.crudproductpage.placeholderproducteditor']}"
+                                              itemValue="#{0}"/>
+                                <f:selectItems value="#{pricePlatformBean.allEditor}"
+                                               var="editor"
+                                               itemLabel="#{editor.editorName}"
+                                               itemValue="#{editor.id}"/>
+
+                                <p:ajax event="change" action="#{pricePlatformBean.inputProductEditorOnChange()}" update="messageProductEditor inputProductSelector"/>
+
+                            </p:selectOneMenu>
+                        </span>
+                        <span class="crudButtonContainer">
+                            <span>
+                                <p:commandButton class="ui-button-warning" icon="pi pi-minus" disabled="true" immediate="true" rendered="#{pricePlatformBean.isNotModeSelected('r')}"/>
+                                <p:commandButton class="ui-button-warning" icon="pi pi-pencil" disabled="true" immediate="true" rendered="#{pricePlatformBean.isNotModeSelected('r')}"/>
+                                <p:commandButton class="ui-button-warning" icon="pi pi-plus" disabled="true" immediate="true" rendered="#{pricePlatformBean.isNotModeSelected('r')}"/>
+                            </span>
+                        </span>
+                        <p:message id="messageProductEditor" for="inputProductEditor"/>
+                    </p:outputPanel>
+
+                    <p:outputPanel class="responsiveInput" rendered="#{pricePlatformBean.renderInputCategory()}">
+                        <span>
+                            <p:outputLabel for="inputProductCategory" value="Categories :"/>
+                            <p:inputText id="inputProductCategory"
+                                         value="#{pricePlatformBean.categorySelectedName}"
+                                         disabled="true"
+                                         placeholder="#{I18N['application.crudproductpage.placeholderproductcategory']}"
+                                         validatorMessage="selectionnez une categorie dans la liste"/>
+                        </span>
+                        <span class="crudButtonContainer">
+                            <span>
+                                <p:commandButton class="ui-button-warning" icon="pi pi-minus" disabled="#{pricePlatformBean.categorySelected == null}" immediate="true"/>
+                                <p:commandButton class="ui-button-warning" icon="pi pi-pencil" disabled="#{pricePlatformBean.categorySelected == null}" immediate="true"/>
+                                <p:commandButton class="ui-button-warning" icon="pi pi-plus" immediate="true"/>
+                            </span>
+                        </span>
+                        <p:message id="messageProductCategory" for="inputProductCategory"/>
+                    </p:outputPanel>
+
+                    <p:outputPanel class="responsiveManyToMany" rendered="#{pricePlatformBean.renderManyToManyCategory()}">
+                        <p:outputPanel rendered="#{pricePlatformBean.isNotModeSelected('r')}">
+                            <h4>
+                                <h:outputText value="#{I18N['application.crudproductpage.titlecategoryenable']}"/>
+                            </h4>
+                            <!-- reload list category from db. -->
+                            <f:metadata>
+                                <f:event type="preRenderView" listener="#{pricePlatformBean.initAllCategory()}"/>
+                            </f:metadata>
+                            <p:scrollPanel class="scrollPanelManyToMany">
+                                <p:outputPanel class="manyToManyRow manyToManyNotFoundMessage"
+                                               rendered="#{pricePlatformBean.allCategory.size() == 0}">
+                                    <h:outputText value="#{I18N['application.crudproductpage.categoriesnotfound']}"/>
+                                </p:outputPanel>
+                                <!-- c:forEach items -->
+                                <ui:repeat value="${pricePlatformBean.allCategory}"
+                                           var="category">
+                                    <p:outputPanel class="manyToManyRow">
+                                        <div>
+                                            <h:outputText value="#{category.categoryName}"/>
+                                        </div>
+                                        <div>
+                                            <p:commandButton class="ui-button-warning" icon="pi pi-angle-up" action="#{pricePlatformBean.selectCategory(category.id)}" update="@form" immediate="true"/>
+                                            <p:commandButton class="ui-button-warning" icon="pi pi-chevron-right" action="#{pricePlatformBean.applyCategory(category.id)}" update="@form" immediate="true" disabled="#{pricePlatformBean.isCategoryInCategoryApply(category.id)}"/>
+                                        </div>
+                                    </p:outputPanel>
+                                </ui:repeat>
+                            </p:scrollPanel>
+                        </p:outputPanel>
+                        <p:outputPanel>
+                            <h4>
+                                <h:outputText value="#{I18N['application.crudproductpage.titlecategoryapply']}"/>
+                            </h4>
+                            <p:scrollPanel class="scrollPanelManyToMany">
+                                <p:outputPanel class="manyToManyRow manyToManyNotFoundMessage"
+                                               rendered="#{pricePlatformBean.listCategoryApply.size() == 0}">
+                                    <h:outputText value="#{I18N['application.crudproductpage.categoriesnotfound']}"/>
+                                </p:outputPanel>
+                                <!-- c:forEach items -->
+                                <ui:repeat value="${pricePlatformBean.listCategoryApply}"
+                                           var="category">
+                                    <p:outputPanel class="manyToManyRow">
+                                        <div>
+                                            <h:outputText value="#{category.categoryName}"/>
+                                        </div>
+                                        <div>
+                                            <p:commandButton class="ui-button-warning"
+                                                             icon="pi pi-minus"
+                                                             action="#{pricePlatformBean.deleteCategoryApply(category.id)}"
+                                                             update="@form"
+                                                             immediate="true"
+                                                             rendered="#{pricePlatformBean.isNotModeSelected('r')}"/>
+                                        </div>
+                                    </p:outputPanel>
+                                </ui:repeat>
+                            </p:scrollPanel>
+                        </p:outputPanel>
+                    </p:outputPanel>
+
+                    <p:outputPanel class="responsiveInput marginTop40px" rendered="#{pricePlatformBean.renderProductInput()}">
+                        <span>
+                            <p:outputLabel for="inputProductMultyPlayer" value="#{I18N['application.crudproductpage.labelproductmultiplayer']}"/>
+                            <p:selectOneMenu id="inputProductMultyPlayer"
+                                             value="#{pricePlatformBean.pricePlatformSelected.idProduct.multiPlayer}"
+                                             disabled="#{pricePlatformBean.inputProductDisabled()}"
+                                             validatorMessage="#{I18N['application.crudproductpage.messageerrorproductmultiplayer']}">
+                                <f:selectItem itemLabel="#{I18N['application.crudproductpage.placeholderproductmultiplayer']}"
+                                              itemValue="#{'---'}"/>
+                                <f:selectItems value="#{pricePlatformBean.allMultiPlayer}"
+                                               var="multiPlayer"
+                                               itemLabel="#{multiPlayer.getMultiPlayer()}"
+                                               itemValue="#{multiPlayer.getMultiPlayer()}"/>
+
+                                <p:ajax event="change" update="messageProductMultiPlayer"/>
+
+                            </p:selectOneMenu>
+                        </span>
+                        <p:message id="messageProductMultiPlayer" for="inputProductMultyPlayer"/>
+                    </p:outputPanel>
+
+                    <p:outputPanel class="responsiveInput" rendered="#{pricePlatformBean.renderProductInput()}">
+                        <span>
+                            <p:outputLabel for="inputProductPegi" value="#{I18N['application.crudproductpage.labelproductpegi']}"/>
+                            <p:selectOneMenu id="inputProductPegi"
+                                             value="#{pricePlatformBean.pricePlatformSelected.idProduct.pegiFormatStr}"
+                                             disabled="#{pricePlatformBean.inputProductDisabled()}"
+                                             required="true"
+                                             validatorMessage="#{I18N['application.crudproductpage.messageerrorproductpegi']}">
+                                <f:selectItem itemLabel="#{I18N['application.crudproductpage.placeholderproductpegi']}"
+                                              itemValue="0"/>
+                                <f:selectItems value="#{pricePlatformBean.allPegi}"
+                                               var="pegi"
+                                               itemLabel="#{pegi.getPegi()}"
+                                               itemValue="#{pegi.getPegi()}"/>
+
+                                <p:ajax event="change" update="messageProductPegi"/>
+
+                            </p:selectOneMenu>
+                        </span>
+                        <p:message id="messageProductPegi" for="inputProductPegi"/>
+                    </p:outputPanel>
+
+                    <p:outputPanel class="responsiveInput" rendered="#{pricePlatformBean.renderInputCategory()}">
+                        <span>
+                            <p:outputLabel for="inputProductLanguage" value="#{I18N['application.crudproductpage.labelproductlanguage']}"/>
+                            <p:inputText id="inputProductLanguage"
+                                         value="#{pricePlatformBean.languageSelectedName}"
+                                         disabled="true"
+                                         placeholder="#{I18N['application.crudproductpage.placeholderproductlanguage']}"
+                                         validatorMessage="selectionnez une langue dans la liste"/>
+                        </span>
+                        <span class="crudButtonContainer">
+                            <span>
+                                <p:commandButton class="ui-button-warning" icon="pi pi-minus" disabled="true" immediate="true"/>
+                                <p:commandButton class="ui-button-warning" icon="pi pi-pencil" disabled="true" immediate="true"/>
+                                <p:commandButton class="ui-button-warning" icon="pi pi-plus" disabled="true" immediate="true"/>
+                            </span>
+                        </span>
+                        <p:message id="messageProductLanguage" for="inputProductLanguage"/>
+                    </p:outputPanel>
+
+                    <p:outputPanel class="responsiveManyToMany" rendered="#{pricePlatformBean.renderManyToManyCategory()}">
+                        <p:outputPanel rendered="#{pricePlatformBean.isNotModeSelected('r')}">
+                            <h4>
+                                <h:outputText value="#{I18N['application.crudproductpage.titlelanguageenable']}"/>
+                            </h4>
+                            <!-- reload list category from db. -->
+                            <f:metadata>
+                                <f:event type="preRenderView" listener="#{pricePlatformBean.initAllLanguage()}"/>
+                            </f:metadata>
+                            <p:scrollPanel class="scrollPanelManyToMany">
+                                <p:outputPanel class="manyToManyRow manyToManyNotFoundMessage"
+                                               rendered="#{pricePlatformBean.allLanguage.size() == 0}">
+                                    <h:outputText value="#{I18N['application.crudproductpage.languagesnotfound']}"/>
+                                </p:outputPanel>
+                                <!-- c:forEach items -->
+                                <ui:repeat value="${pricePlatformBean.allLanguage}"
+                                           var="language">
+                                    <p:outputPanel class="manyToManyRow">
+                                        <div>
+                                            <h:outputText value="#{language.languageName}"/>
+                                        </div>
+                                        <div>
+                                            <p:commandButton class="ui-button-warning" icon="pi pi-angle-up" action="#{pricePlatformBean.selectLanguage(language.id)}" update="@form" immediate="true"/>
+                                            <p:commandButton class="ui-button-warning" icon="pi pi-chevron-right" action="#{pricePlatformBean.applyLanguage(language.id)}" update="@form" immediate="true" disabled="#{pricePlatformBean.isLanguageInLanguageApply(language.id)}"/>
+                                        </div>
+                                    </p:outputPanel>
+                                </ui:repeat>
+                            </p:scrollPanel>
+                        </p:outputPanel>
+                        <p:outputPanel>
+                            <h4>
+                                <h:outputText value="#{I18N['application.crudproductpage.titlelanguageapply']}"/>
+                            </h4>
+                            <p:scrollPanel class="scrollPanelManyToMany">
+                                <p:outputPanel class="manyToManyRow manyToManyNotFoundMessage"
+                                               rendered="#{pricePlatformBean.listLanguageApply.size() == 0}">
+                                    <h:outputText value="#{I18N['application.crudproductpage.languagesnotfound']}"/>
+                                </p:outputPanel>
+                                <!-- c:forEach items -->
+                                <ui:repeat value="${pricePlatformBean.listLanguageApply}"
+                                           var="language">
+                                    <p:outputPanel class="manyToManyRow">
+                                        <div>
+                                            <h:outputText value="#{language.languageName}"/>
+                                        </div>
+                                        <div>
+                                            <p:commandButton class="ui-button-warning"
+                                                             icon="pi pi-minus"
+                                                             action="#{pricePlatformBean.deleteLanguageApply(language.id)}"
+                                                             update="@form"
+                                                             immediate="true"
+                                                             rendered="#{pricePlatformBean.isNotModeSelected('r')}"/>
+                                        </div>
+                                    </p:outputPanel>
+                                </ui:repeat>
+                            </p:scrollPanel>
+                        </p:outputPanel>
+                    </p:outputPanel>
+
+                    <p:outputPanel class="responsiveInput marginTop40px" rendered="#{pricePlatformBean.renderProductInput()}">
+                        <span>
+                            <p:outputLabel for="inputProductDateRelease" value="#{I18N['application.crudproductpage.labelproductdaterelease']}"/>
+                            <p:datePicker id="inputProductDateRelease"
+                                         required="true"
+                                         value="#{pricePlatformBean.pricePlatformSelected.idProduct.releaseDate}"
+                                         disabled="#{pricePlatformBean.inputProductDisabled()}"
+                                         placeholder="#{I18N['application.inscriptionpage.dayofbirthplaceholder']}"
+                                         validatorMessage="#{I18N['application.inscriptionpage.dayofbirthplaceholder']}">
+
+                                <p:ajax event="change" update="messageProductDateRelease"/>
+
+                            </p:datePicker>
+                        </span>
+                        <p:message id="messageProductDateRelease" for="inputProductDateRelease"/>
+                    </p:outputPanel>
+
+                    <p:outputPanel class="responsiveInput" rendered="#{pricePlatformBean.renderProductInput()}">
+                        <span>
+                            <p:outputLabel for="inputProductDescription" value="#{I18N['application.crudproductpage.labelproductdescription']}"/>
+                            <p:inputTextarea rows="6"
+                                             cols="33"
+                                             id="inputProductDescription"
+                                             value="#{pricePlatformBean.pricePlatformSelected.idProduct.description}"
+                                             disabled="#{pricePlatformBean.inputProductDisabled()}"
+                                             placeholder="#{I18N['application.crudproductpage.placeholderproductdescription']}"
+                                             validatorMessage="#{I18N['application.crudproductpage.messageerrorproductdescription']}">
+                                <p:ajax event="change" update="messageProductDescription"/>
+                            </p:inputTextarea>
+                        </span>
+                        <p:message id="messageProductDescription" for="inputProductDescription"/>
+                    </p:outputPanel>
+
+                    <p:outputPanel class="responsiveInput" rendered="#{pricePlatformBean.renderInputCategory()}">
+                        <span>
+                            <p:outputLabel for="inputProductEnable" value="#{I18N['application.crudproductpage.labelproductenable']}"/>
+                            <p:selectBooleanCheckbox class="ui-button-warning checkBoxForm"
+                                                     value="#{pricePlatformBean.pricePlatformSelected.idProduct.enable}"
+                                                     id="inputProductEnable"/>
+                        </span>
+                        <p:message id="messageProductEnable" for="inputProductEnable"/>
+                    </p:outputPanel>
+
+                    <!-- End form product. -->
+
+                    <p:outputPanel rendered="#{pricePlatformBean.defaultErrorSubmit}"
+                                   id="defaultErrorSubmit" role="alert" aria-atomic="true"
+                                   aria-live="polite" class="ui-message ui-message-error ui-widget ui-corner-all">
+                        <div>
+                            <i class="pi pi-check-circle"> </i>
+                            <span class="ui-message-error-detail message-succes-detail" id="defaultErrorSubmitMessage">
+                                <h:outputText value="une erreur est survenue" rendered="#{pricePlatformBean.defaultErrorSubmitMessageIsNull()}"/>
+                                <h:outputText value="#{pricePlatformBean.defaultErrorSubmitMessage}" rendered="#{pricePlatformBean.defaultErrorSubmitMessageIsNotNull()}"/>
+                            </span>
+                        </div>
+                    </p:outputPanel>
+                    <p:outputPanel rendered="#{pricePlatformBean.defaultSuccessSubmit}"
+                                   id="defaultSuccessSubmit" role="alert" aria-atomic="true"
+                                   aria-live="polite" class="ui-message ui-message-success ui-widget ui-corner-all">
+                        <div>
+                            <span class="ui-message-success-icon"> </span>
+                            <span class="ui-message-success-detail" id="defaultSuccessSubmitMessage">
+                                <h:outputText value="execution du formulaire avec succes"/>
+                            </span>
+                        </div>
+                    </p:outputPanel>
+                    <!-- erase message default. -->
+                    <f:metadata>
+                        <f:event type="preRenderView" listener="#{pricePlatformBean.eraseMessageDefault()}"/>
+                    </f:metadata>
+
+                    <span class="responsiveSubmit">
+                        <p:commandButton value="#{I18N['application.crudpage.buttoncreatesubmit']}"
+                                         rendered="#{pricePlatformBean.isModeSelected('c')}"
+                                         disabled="#{pricePlatformBean.disabledSubmitCreate()}"
+                                         ajax="false"
+                                         validateClient="true"
+                                         class="ui-button-success"
+                                         action="#{pricePlatformBean.submitForm()}"/>
+                        <p:commandButton value=""
+                                         rendered="#{pricePlatformBean.isModeSelected('r')}"
+                                         ajax="false"
+                                         validateClient="true"
+                                         class="ui-button-success"
+                                         action="#{pricePlatformBean.submitForm()}"/>
+                        <p:commandButton value="#{I18N['application.crudpage.buttonupdatesubmit']}"
+                                         rendered="#{pricePlatformBean.isModeSelected('u')}"
+                                         ajax="false"
+                                         validateClient="true"
+                                         class="ui-button-success"
+                                         action="#{pricePlatformBean.submitForm()}"/>
+                    </span>
+
+                </h:form>
+
+                <div class="responsiveForm positionCancel">
+                    <span class="responsiveSubmit">
+                        <span class="flexGrowOne"> </span>
+                            <p:commandButton id="cancelButtonSignUp"
+                                             value="#{I18N['application.crudpage.buttonbacklastpage']}"
+                                             action="#{historicalBean.backLastPageHistoric()}"
+                                             class="ui-button-danger"
+                                             immediate="true"/>
+                    </span>
+                </div>
+
+                <!-- Main form end ________________________________________________________________ -->
+
+            </p:outputPanel>
+
+        </div>
+
+    </ui:define>
+</ui:composition>
+
+<!-- ______ ______ -->
+
+</html>

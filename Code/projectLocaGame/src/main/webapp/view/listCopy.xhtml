@@ -1,0 +1,178 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:h="http://java.sun.com/jsf/html">
+
+<!-- ______ ______ -->
+
+<ui:composition template="/WEB-INF/templates/simple.xhtml">
+    <ui:define name="title">
+        #{I18N['application.header.menucopy']}
+    </ui:define>
+    <ui:define name="content">
+
+        <!-- save historic. -->
+        <f:metadata>
+            <f:event type="preRenderView" listener="#{historicalBean.saveNewPageHistoric('/view/listCopy')}"/>
+        </f:metadata>
+
+        <div id="listCopy">
+
+            <div>
+                <h2>
+                    <h:outputText value="#{I18N['application.header.menulistcopy']}"/>
+                </h2>
+            </div>
+
+            <h:form>
+
+                <!-- load list research catalog. -->
+                <f:metadata>
+                    <f:event type="preRenderView" listener="#{copyListBean.doResearch()}"/>
+                </f:metadata>
+
+                <p:dataTable
+                        var="copy"
+                        value="#{copyListBean.entityFiltered}"
+                        class="tableHeaderNoPadding tableHeaderTitleCenter"
+                        paginator="true"
+                        paginatorPosition="bottom"
+                        paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                        currentPageReportTemplate="{startRecord}-{endRecord} sur {totalRecords} elements"
+                        rowsPerPageTemplate="5,10,20"
+                        rows="5">
+
+                    <f:facet name="header">
+
+                        <div class="containerFlex containerTableHeaderFilter">
+                            <div class="flexGrowOne">
+                                <p:inputText value="#{copyListBean.filter}"
+                                             onkeyup="researchTable(this)"
+                                             id="copyInputResearch"
+                                             validatorMessage="#{I18N['application.listpage.messageerrorresearch']}"
+                                             placeholder="#{I18N['application.listpage.filter']}"/>
+                                <p:commandButton class="reloadResearchForm" type="hidden" update="@form"/>
+                            </div>
+                            <div class="flexGrowOne">
+                                <p:message id="copyMessageResearch" for="copyInputResearch"/>
+                            </div>
+                            <div class="flexGrowOne containerRedirectButtonTable">
+                                <p:commandButton value="#{I18N['application.listpage.addelementbutton']}"
+                                                 class="ui-button-warning"
+                                                 icon="pi pi-plus"
+                                                 action="#{copyListBean.redirectPageWidthId('/view/crudCopy', 0, 'c')}"
+                                                 rendered="#{connectionBean.verifyPermissionUser('copy:insert')}"
+                                                 iconPos="right"/>
+                            </div>
+                        </div>
+
+                        <div class="containerFlex containerTableHeaderFilter containerTableHeaderOrder">
+                            <div class="flexGrowOne">
+                                <i class="#{copyListBean.getOrderIcon('storename')}" onclick="clickNext(this)"/>
+                                <p:commandButton type="hidden" action="#{copyListBean.editOrderTable('storename')}" update="@form"/>
+                            </div>
+                            <div class="flexGrowOne">
+                                <i class="#{copyListBean.getOrderIcon('productname')}" onclick="clickNext(this)"/>
+                                <p:commandButton type="hidden" action="#{copyListBean.editOrderTable('productname')}" update="@form"/>
+                            </div>
+                            <div class="flexGrowOne">
+                                <i class="#{copyListBean.getOrderIcon('copyname')}" onclick="clickNext(this)"/>
+                                <p:commandButton type="hidden" action="#{copyListBean.editOrderTable('copyname')}" update="@form"/>
+                            </div>
+                            <div class="flexGrowOne">
+                                <i class="#{copyListBean.getOrderIcon('buyprice')}" onclick="clickNext(this)"/>
+                                <p:commandButton type="hidden" action="#{copyListBean.editOrderTable('buyprice')}" update="@form"/>
+                            </div>
+
+                            <div class="flexGrowOne">
+                                <i class="#{copyListBean.getOrderIcon('status')}" onclick="clickNext(this)"/>
+                                <p:commandButton type="hidden" action="#{copyListBean.editOrderTable('status')}" update="@form"/>
+                            </div>
+
+                            <!-- button -->
+
+                            <p:outputPanel class="flexGrowOne" rendered="#{connectionBean.verifyPermissionUser('copy:update')}">
+                                <!-- no filter for button (edit). -->
+                                <i class="pi pi-circle-off visibilityHidden" />
+                            </p:outputPanel>
+                            <p:outputPanel class="flexGrowOne" rendered="#{connectionBean.verifyPermissionUser('copy:delete')}">
+                                <!-- no filter for button (delete). -->
+                                <i class="pi pi-circle-off visibilityHidden" />
+                            </p:outputPanel>
+
+                        </div>
+
+                    </f:facet>
+
+                    <!-- store name -->
+                    <p:column headerText="#{I18N['application.listcopypage.headerliststorename']}" class="columnTableListResearchWord">
+                        <h:outputText value="#{copy.idStore.storeName}"/>
+                    </p:column>
+
+                    <!-- product name -->
+                    <p:column headerText="#{I18N['application.listcopypage.headerlistpriceplatformename']}" class="columnTableListResearchWord">
+                        <h:outputText value="#{copy.idPricePlatform.idProduct.productName} (#{copy.idPricePlatform.idPlatform.platformName})"/>
+                    </p:column>
+
+                    <!-- copy name -->
+                    <p:column headerText="#{I18N['application.listcopypage.headerlistcopyname']}" class="columnTableListResearchWord">
+                        <h:outputText value="#{copy.copyName}"/>
+                    </p:column>
+
+                    <!-- buy price -->
+                    <p:column headerText="#{I18N['application.listcopypage.headerlistbuyprice']}">
+                        <h:outputText value="#{copy.buyPriceFormatStr}€"/>
+                    </p:column>
+
+                    <!-- status -->
+                    <p:column headerText="#{I18N['application.listcopypage.headerliststatus']}">
+                        <h:outputText value="#{copy.status.statusCopy}" class="#{copy.statusClassColor}"/>
+                    </p:column>
+
+                    <!-- button column _____________________________________________ -->
+
+                    <p:column headerText="#{I18N['application.listpage.headerlistedit']}" rendered="#{connectionBean.verifyPermissionUser('copy:update')}">
+                        <i class="pi pi-pencil" onclick="clickNext(this)"/>
+                        <p:commandButton type="hidden" action="#{copyListBean.redirectPageWidthId('/view/crudCopy', copy.id, 'u')}"/>
+                    </p:column>
+
+                    <p:column headerText="#{I18N['application.listpage.headerlistdelete']}" rendered="#{connectionBean.verifyPermissionUser('copy:delete')}">
+                        <i class="pi pi-times-circle" onclick="clickNextConfirm(this, 'confirmDelete')"/>
+                        <p:commandButton type="hidden" action="#{copyListBean.deleteEntity(copy.id, connectionBean.verifyPermissionUser('copy:delete'))}"/>
+                    </p:column>
+
+                </p:dataTable>
+
+                <!-- when table was full load, call wordResearch class. -->
+                <f:metadata>
+                    <f:event type="preRenderView" listener="#{copyListBean.applyResearchWordClass()}"/>
+                </f:metadata>
+
+                <!-- message i18n for delete processing -->
+                <p:outputPanel class="hidden">
+                    <span class="confirmDelete">
+                        <h:outputText value="#{I18N['application.listpage.messageconfirmdelete']}"/>
+                    </span>
+                    <span class="errorDeleteBecauseJoin">
+                        <h:outputText value="#{I18N['application.listpage.errordeletebecausejoin']}"/>
+                    </span>
+                    <span class="successDelete">
+                        <h:outputText value="#{I18N['application.listpage.successdelete']}"/>
+                    </span>
+                    <span class="errorProcessDelete">
+                        <h:outputText value="#{I18N['application.listpage.errorprocessdelete']}"/>
+                    </span>
+                </p:outputPanel>
+
+            </h:form>
+
+        </div>
+    </ui:define>
+</ui:composition>
+
+<!-- ______ ______ -->
+
+</html>

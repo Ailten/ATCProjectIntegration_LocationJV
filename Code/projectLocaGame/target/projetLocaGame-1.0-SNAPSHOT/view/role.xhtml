@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:c="http://java.sun.com/jsp/jstl/core"
+      xmlns:p="http://primefaces.org/ui">
+<ui:composition template="/WEB-INF/templates/simple.xhtml">
+    <ui:define name="title">
+        <h:outputText value="#{I18N['application.rolepage.createroletitle']}" rendered="#{roleBean.isModeSelected('c')}"/>
+        <h:outputText value="#{I18N['application.rolepage.updateroletitle']}" rendered="#{roleBean.isModeSelected('u')}"/>
+    </ui:define>
+    <ui:define name="content">
+
+        <!-- save historic. -->
+        <f:metadata>
+            <f:event type="preRenderView" listener="#{historicalBean.saveNewPageHistoric('/view/role')}"/>
+        </f:metadata>
+
+
+        <div class ="containers">
+            <h2>
+                <h:outputText value="#{I18N['application.rolepage.createroletitle']}" rendered="#{roleBean.isModeSelected('c')}"/>
+                <h:outputText value="#{I18N['application.rolepage.updateroletitle']}" rendered="#{roleBean.isModeSelected('u')}"/>
+            </h2>
+            <h:form class="responsiveForm">
+
+                <p:outputPanel class="responsiveInput" rendered="#{roleBean.isModeSelected('u')}">
+                        <span>
+                            <p:outputLabel for="input_rolename_update" value="#{I18N['application.rolepage.rolenametitle']}"/>
+                            <p:selectOneMenu id="input_rolename_update" value="#{roleBean.role.id}"
+                                             validatorMessage="#{I18N['application.rolepage.messageerrorroleselect']}">
+                                <f:selectItem itemLabel="#{I18N['application.rolepage.rolenameselectplaceholder']}" itemValue="0"/>
+                                <f:selectItems value="#{roleBean.roleList}" var="role" itemLabel="#{role.roleName}" itemValue="#{role.id}"/>
+                                <p:ajax listener="#{roleBean.updatePermissionRoleWithPermission()}" update="permission_table"/>
+                                <p:ajax update="messageErrorrolenameselect" event="change"/>
+                            </p:selectOneMenu>
+                        </span>
+                    <p:message id="messageErrorrolenameselect" for="@previous"/>
+                </p:outputPanel>
+
+                <p:outputPanel class="responsiveInput">
+                        <span>
+                            <p:outputLabel for="input_rolename_new" value="#{I18N['application.rolepage.rolenametitle']}"/>
+                            <p:inputText id="input_rolename_new" value="#{roleBean.role.roleName}"
+                                         placeholder="#{I18N['application.rolepage.rolenameplaceholder']}"
+                                         validatorMessage="#{I18N['application.rolepage.messageerrorrolename']}">
+                                <p:ajax update="messageRoleName" event="keyup"/>
+                            </p:inputText>
+                        </span>
+                    <p:message id="messageRoleName" for="@previous"/>
+                </p:outputPanel>
+
+                <p:outputPanel id="permission_table">
+                    <p:outputPanel class="responsiveManyToMany">
+                        <h4>
+                            <h:outputText value="#{I18N['application.rolepage.permissionenabletitle']}"/>
+                        </h4>
+                        <!-- reload list category from db. -->
+                        <f:metadata>
+                            <f:event type="preRenderView" listener="#{roleBean.initPermission()}"/>
+                        </f:metadata>
+                        <p:scrollPanel class="scrollPanelManyToMany">
+                            <p:outputPanel class="manyToManyRow manyToManyNotFoundMessage"
+                                           rendered="#{roleBean.permissionListAll.size() == 0}">
+                                <h:outputText value="#{I18N['application.rolepage.permissionsnotfound']}"/>
+                            </p:outputPanel>
+                            <!-- c:forEach items -->
+                            <ui:repeat value="${roleBean.permissionListAll}"
+                                       var="permission">
+                                <p:outputPanel class="manyToManyRow">
+                                    <div>
+                                        <h:outputText value="#{permission.permissionName}"/>
+                                    </div>
+                                    <div>
+                                        <p:commandButton class="ui-button-warning" icon="pi pi-angle-up"
+                                                         action="#{pricePlatformBean.selectCategory(permission.id)}"
+                                                         update="@form"
+                                                         immediate="true"/>
+                                        <p:commandButton class="ui-button-warning"
+                                                         icon="pi pi-chevron-right"
+                                                         action="#{pricePlatformBean.applyCategory(permission.id)}"
+                                                         update="@form"
+                                                         immediate="true"
+                                                         disabled="#{roleBean.isPermessionInPermissionApply(permission.id)}"/>
+                                    </div>
+                                </p:outputPanel>
+                            </ui:repeat>
+                        </p:scrollPanel>
+                    </p:outputPanel>
+                    <p:outputPanel>
+                        <h4>
+                            <h:outputText value="#{I18N['application.rolepage.titlepermissionapply']}"/>
+                        </h4>
+                        <p:scrollPanel class="scrollPanelManyToMany">
+                            <p:outputPanel class="manyToManyRow manyToManyNotFoundMessage"
+                                           rendered="#{roleBean.permissionrolesList.size() == 0}">
+                                <h:outputText value="#{I18N['application.rolepage.permissionsnotfound']}"/>
+                            </p:outputPanel>
+                            <!-- c:forEach items -->
+                            <ui:repeat value="${roleBean.permissionrolesList}"
+                                       var="permission">
+                                <p:outputPanel class="manyToManyRow">
+                                    <div>
+                                        <h:outputText value="#{permission.permissionName}"/>
+                                    </div>
+                                    <div>
+                                        <p:commandButton class="ui-button-warning"
+                                                         icon="pi pi-minus"
+                                                         action="#{pricePlatformBean.deleteCategoryApply(permission.id)}"
+                                                         update="@form"
+                                                         immediate="true"
+                                                         rendered="#{pricePlatformBean.isNotModeSelected('r')}"/>
+                                    </div>
+                                </p:outputPanel>
+                            </ui:repeat>
+                        </p:scrollPanel>
+                    </p:outputPanel>
+                </p:outputPanel>
+
+                <span class="responsiveSubmit">
+                    <p:commandButton value="#{I18N['application.inscriptionpage.buttonsubmit']}" ajax="false"
+                                     validateClient="true"
+                                     class="ui-button-success"
+                                     update="@form"
+                                     action="#{userBean.lastVerificationSubmit()}"/>
+                </span>
+            </h:form>
+            <div class="responsiveForm positionCancel">
+                <span class="responsiveSubmit">
+                    <span class="flexGrowOne"> </span>
+                        <p:commandButton value="#{I18N['application.inscriptionpage.buttonreturn']}" action="#{userBean.goToAnOrderPage('/view/connectionBean')}"
+                                         class="ui-button-danger" id="cancelButtonSignUp"/>
+                </span>
+
+            </div>
+        </div>
+    </ui:define>
+</ui:composition>
+</html>

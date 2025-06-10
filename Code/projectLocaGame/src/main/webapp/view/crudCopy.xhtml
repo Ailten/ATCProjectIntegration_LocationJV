@@ -1,0 +1,242 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:ui="http://java.sun.com/jsf/facelets" xmlns:h="http://java.sun.com/jsf/html">
+
+<!-- ______ ______ -->
+
+<ui:composition template="/WEB-INF/templates/simple.xhtml">
+    <ui:define name="title">
+        <h:outputText value="#{I18N['application.header.createcopy']}" rendered="#{copyBean.isModeSelected('c')}"/>
+        <h:outputText value="#{I18N['application.header.detailcopy']}" rendered="#{copyBean.isModeSelected('r')}"/>
+        <h:outputText value="#{I18N['application.header.editcopy']}" rendered="#{copyBean.isModeSelected('u')}"/>
+    </ui:define>
+    <ui:define name="content">
+
+        <!-- load copy selected from other page. + save historic.-->
+        <f:metadata>
+            <f:event type="preRenderView" listener="#{copyBean.loadCopySelected(copyListBean)}"/>
+            <f:event type="preRenderView" listener="#{historicalBean.saveNewPageHistoric('/view/crudCopy')}"/>
+        </f:metadata>
+
+        <div class ="containers">
+
+            <!-- error loading message -->
+            <p:outputPanel rendered="#{copyBean.elementCrudIsErrorLoad()}">
+                <h2>
+                    <h:outputText value="#{I18N['application.crudpage.errorloadtitle']}"/>
+                </h2>
+                <p class="textCenter">
+                    <h:outputText value="#{I18N['application.crudcopypage.errorloadcopymessage']}"/>
+                </p>
+            </p:outputPanel>
+
+            <!-- no error -->
+            <p:outputPanel rendered="#{copyBean.elementCrudIsSuccessLoad()}">
+
+                <div>
+                    <h2>
+                        <h:outputText value="#{I18N['application.crudcopypage.titlepagecreate']}"
+                                      rendered="#{copyBean.isModeSelected('c')}"/>
+                        <h:outputText value="#{I18N['application.crudcopypage.titlepageread']}"
+                                      rendered="#{copyBean.isModeSelected('r')}"/>
+                        <h:outputText value="#{I18N['application.crudcopypage.titlepageupdate']}"
+                                      rendered="#{copyBean.isModeSelected('u')}"/>
+                    </h2>
+                </div>
+
+                <!-- Main form start ________________________________________________________________ -->
+                <h:form class="responsiveForm" id="formCrudCopy">
+
+                    <div>
+                        <h3 class="titreSectionH3">
+                            <h:outputText value="#{I18N['application.crudcopypage.titlecopy']}"/>
+                        </h3>
+                    </div>
+
+                    <!-- copy name -->
+                    <p:outputPanel class="responsiveInput">
+                        <span>
+                            <p:outputLabel for="inputCopyName" value="#{I18N['application.crudcopypage.labelcopyname']}"/>
+                            <p:inputText id="inputCopyName"
+                                         required="true"
+                                         disabled="true"
+                                         value="#{copyBean.elementCrudSelected.copyName}"
+                                         placeholder="#{I18N['application.crudcopypage.placeholdercopyname']}"
+                                         validatorMessage="#{I18N['application.crudcopypage.messageerrorcopyname']}">
+                                <p:ajax event="keyup" update="messageCopyName"/>
+                            </p:inputText>
+                        </span>
+                        <p:message id="messageCopyName" for="inputCopyName"/>
+                    </p:outputPanel>
+
+                    <!-- select store -->
+                    <p:outputPanel class="responsiveInput">
+                        <span>
+                            <p:outputLabel for="inputStore" value="#{I18N['application.crudcopypage.labelstore']}"/>
+                            <p:selectOneMenu id="inputStore"
+                                             value="#{copyBean.elementCrudSelected.idStore}"
+                                             disabled="#{copyBean.isModeSelected('r')}"
+                                             converter="StoreConverter"
+                                             required="true"
+                                             validatorMessage="#{I18N['application.crudcopypage.messageerrorstore']}">
+                                <!-- reload list store from db. -->
+                                <f:metadata>
+                                    <f:event type="preRenderView" listener="#{copyBean.initAllStore()}"/>
+                                </f:metadata>
+                                <f:selectItem itemLabel="#{I18N['application.crudcopypage.placeholderstore']}"
+                                              itemValue="#{null}"/>
+                                <f:selectItems value="#{copyBean.allStore}"
+                                               var="store"
+                                               itemLabel="#{store.storeName}"
+                                               itemValue="#{store}"/>
+                                <p:ajax event="change" update="messageStore, inputCopyName"/>
+                            </p:selectOneMenu>
+                        </span>
+                        <p:message id="messageStore" for="inputStore"/>
+                    </p:outputPanel>
+
+                    <!-- select pricePlatform (combo box) -->
+                    <p:outputPanel class="responsiveInput">
+                        <span>
+                            <p:outputLabel for="inputPricePlatform" value="#{I18N['application.crudcopypage.labelpriceplatform']}"/>
+                            <p:selectOneMenu id="inputPricePlatform"
+                                             value="#{copyBean.elementCrudSelected.idPricePlatform}"
+                                             converter="PricePlatformConverter"
+                                             effect="fade"
+                                             var="pp"
+                                             filter="true"
+                                             filterMatchMode="startsWith"
+                                             required="true"
+                                             validatorMessage="#{I18N['application.crudcopypage.messageerrorpriceplatform']}">
+                                <!-- reload list pricePlatform from db. -->
+                                <f:metadata>
+                                    <f:event type="preRenderView" listener="#{copyBean.initAllPricePlatform()}"/>
+                                </f:metadata>
+                                <f:selectItem itemLabel="#{I18N['application.crudcopypage.placeholderpriceplatform']}"
+                                              itemValue="#{null}"/>
+                                <f:selectItems value="#{copyBean.allPricePlatform}"
+                                               var="pricePlatform"
+                                               itemLabel="#{pricePlatform.getPricePlatformName()})"
+                                               itemValue="#{pricePlatform}"/>
+                                <p:column>
+                                    <f:facet name="header">
+                                        <h:outputText value="#{I18N['application.listpage.name']}"/>
+                                    </f:facet>
+                                    <h:outputText value="#{pp.getPricePlatformName()})"/>
+                                </p:column>
+                                <p:ajax event="change" update="messagePricePlatform, inputCopyName"/>
+                            </p:selectOneMenu>
+                        </span>
+                        <p:message id="messagePricePlatform" for="inputPricePlatform"/>
+                    </p:outputPanel>
+
+
+                    <!-- input buyPrice -->
+                    <p:outputPanel class="responsiveInput">
+                        <span>
+                            <p:outputLabel for="inputBuyPrice" value="#{I18N['application.crudcopypage.labelbuyprice']}"/>
+                            <p:inputNumber
+                                    id="inputBuyPrice"
+                                    required="true"
+                                    decimalPlaces="2"
+                                    disabled="#{copyBean.isModeSelected('r')}"
+                                    value="#{copyBean.elementCrudSelected.buyPrice}"
+                                    placeholder="#{I18N['application.crudcopypage.placeholderbuyprice']}"
+                                    validatorMessage="#{I18N['application.crudcopypage.messageerrorbuyprice']}">
+                                <p:ajax event="keyup" update="messageBuyPrice"/>
+                            </p:inputNumber>
+                        </span>
+                        <p:message id="messageBuyPrice" for="inputBuyPrice"/>
+                    </p:outputPanel>
+
+                    <!-- select enum status -->
+                    <p:outputPanel class="responsiveInput">
+                        <span>
+                            <p:outputLabel for="inputStatus" value="#{I18N['application.crudcopypage.labelstatus']}"/>
+                            <p:selectOneMenu id="inputStatus"
+                                             value="#{copyBean.elementCrudSelected.status}"
+                                             disabled="#{copyBean.isModeSelected('r')}"
+                                             converter="StatusCopyConverter"
+                                             required="true"
+                                             validatorMessage="#{I18N['application.crudcopypage.messageerrorstatus']}">
+                                <f:selectItem itemLabel="#{I18N['application.crudcopypage.placeholderstatus']}"
+                                              itemValue="#{null}"/>
+                                <!-- import all enum -->
+                                <p:importEnum type="adrien.faouzi.enumeration.StatusCopy"
+                                              var="enumImportStatus"
+                                              allSuffix="getAll"/>
+                                <f:selectItems value="#{enumImportStatus.getAll}"
+                                               var="status"
+                                               itemLabel="#{status.getStatusCopy()}"
+                                               itemValue="#{status}"/>
+                                <p:ajax event="change" update="messageStatus"/>
+                            </p:selectOneMenu>
+                        </span>
+                        <p:message id="messageStatus" for="inputStatus"/>
+                    </p:outputPanel>
+
+
+                    <!-- input submit -->
+
+
+                    <!-- message error submit -->
+                    <p:outputPanel class="responsiveInput ui-message ui-message-error ui-widget ui-corner-all manyToManyError"
+                                   rendered="#{copyBean.getErrorSubmitDB()}"
+                                   role="alert" aria-atomic="true" aria-live="polite">
+                        <div>
+                            <span class="ui-message-error-icon"> </span>
+                            <span class="ui-message-error-detail message-succes-detail" >
+                                    <h:outputText value="#{I18N['application.crudpage.messageerrorsubmit']}"/>
+                                </span>
+                        </div>
+                    </p:outputPanel>
+
+                    <span class="responsiveSubmit">
+                        <p:commandButton value="#{I18N['application.crudpage.buttoncreatesubmit']}"
+                                         rendered="#{copyBean.isModeSelected('c')}"
+                                         ajax="false"
+                                         validateClient="true"
+                                         class="ui-button-success"
+                                         action="#{copyBean.submitForm(historicalBean, connectionBean.verifyPermissionUser('copy:insert'))}"/>
+                        <p:commandButton value=""
+                                         rendered="#{copyBean.isModeSelected('r')}"
+                                         ajax="false"
+                                         validateClient="true"
+                                         class="ui-button-success hiddenBlock"
+                                         action="#{copyBean.submitForm(historicalBean, connectionBean.verifyPermissionUser('copy:details'))}"/>
+                        <p:commandButton value="#{I18N['application.crudpage.buttonupdatesubmit']}"
+                                         rendered="#{copyBean.isModeSelected('u')}"
+                                         ajax="false"
+                                         validateClient="true"
+                                         class="ui-button-success"
+                                         action="#{copyBean.submitForm(historicalBean, connectionBean.verifyPermissionUser('copy:update'))}"/>
+                    </span>
+
+                </h:form>
+
+                <div class="responsiveForm positionCancel">
+                    <span class="responsiveSubmit">
+                        <span class="flexGrowOne"> </span>
+                            <p:commandButton id="cancelButtonSignUp"
+                                             value="#{I18N['application.crudpage.buttonbacklastpage']}"
+                                             action="#{historicalBean.backLastPageHistoric()}"
+                                             class="ui-button-danger"
+                                             immediate="true"/>
+                    </span>
+                </div>
+
+                <!-- Main form end ________________________________________________________________ -->
+
+            </p:outputPanel>
+
+        </div>
+
+    </ui:define>
+</ui:composition>
+
+<!-- ______ ______ -->
+
+</html>

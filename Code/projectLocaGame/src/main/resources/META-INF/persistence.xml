@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<persistence xmlns="http://xmlns.jcp.org/xml/ns/persistence"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/persistence http://xmlns.jcp.org/xml/ns/persistence/persistence_2_2.xsd"
+             version="2.2">
+    <persistence-unit name="locagame" transaction-type="JTA">
+        <provider>org.eclipse.persistence.jpa.PersistenceProvider</provider>
+        <jta-data-source>java:comp/env/jdbc/locagame</jta-data-source>
+        <class>adrien.faouzi.entities.Country</class>
+        <class>adrien.faouzi.entities.City</class>
+        <class>adrien.faouzi.entities.Permission</class>
+        <class>adrien.faouzi.entities.Role</class>
+        <class>adrien.faouzi.entities.Permissionrole</class>
+        <class>adrien.faouzi.entities.User</class>
+        <class>adrien.faouzi.entities.Address</class>
+        <class>adrien.faouzi.entities.Order</class>
+        <class>adrien.faouzi.entities.Addressorder</class>
+        <class>adrien.faouzi.entities.Documenttype</class>
+        <class>adrien.faouzi.entities.Document</class>
+        <class>adrien.faouzi.entities.Editor</class>
+        <class>adrien.faouzi.entities.Category</class>
+        <class>adrien.faouzi.entities.Product</class>
+        <class>adrien.faouzi.entities.Categoryproduct</class>
+        <class>adrien.faouzi.entities.Languagegame</class>
+        <class>adrien.faouzi.entities.Languageproduct</class>
+        <class>adrien.faouzi.entities.Priceplatform</class>
+        <class>adrien.faouzi.entities.Copyorder</class>
+        <class>adrien.faouzi.entities.Store</class>
+        <class>adrien.faouzi.entities.Platform</class>
+        <class>adrien.faouzi.entities.Copy</class>
+
+    </persistence-unit>
+</persistence>

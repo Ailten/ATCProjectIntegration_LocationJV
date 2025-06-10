@@ -1,0 +1,138 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:h="http://java.sun.com/jsf/html">
+
+<!-- ______ ______ -->
+
+<ui:composition template="/WEB-INF/templates/simple.xhtml">
+    <ui:define name="title">
+        #{I18N['application.header.menucategory']}
+    </ui:define>
+    <ui:define name="content">
+
+        <!-- save historic. -->
+        <f:metadata>
+            <f:event type="preRenderView" listener="#{historicalBean.saveNewPageHistoric('/view/listCategory')}"/>
+        </f:metadata>
+
+        <div id="listCategory">
+
+            <div>
+                <h2>
+                    <h:outputText value="#{I18N['application.header.menulistcategory']}"/>
+                </h2>
+            </div>
+
+            <h:form>
+
+                <!-- load list research catalog. -->
+                <f:metadata>
+                    <f:event type="preRenderView" listener="#{categoryListBean.doResearch()}"/>
+                </f:metadata>
+
+                <p:dataTable
+                        var="category"
+                        value="#{categoryListBean.entityFiltered}"
+                        class="tableHeaderNoPadding tableHeaderTitleCenter"
+                        paginator="true"
+                        paginatorPosition="bottom"
+                        paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                        currentPageReportTemplate="{startRecord}-{endRecord} sur {totalRecords} elements"
+                        rowsPerPageTemplate="5,10,20"
+                        rows="5">
+
+                    <f:facet name="header">
+
+                        <div class="containerFlex containerTableHeaderFilter">
+                            <div class="flexGrowOne">
+                                <p:inputText value="#{categoryListBean.filter}"
+                                             onkeyup="researchTable(this)"
+                                             id="categoryInputResearch"
+                                             validatorMessage="#{I18N['application.listpage.messageerrorresearch']}"
+                                             placeholder="#{I18N['application.listpage.filter']}"/>
+                                <p:commandButton class="reloadResearchForm" type="hidden" update="@form"/>
+                            </div>
+                            <div class="flexGrowOne">
+                                <p:message id="categoryMessageResearch" for="categoryInputResearch"/>
+                            </div>
+                            <div class="flexGrowOne containerRedirectButtonTable">
+                                <p:commandButton value="#{I18N['application.listpage.addelementbutton']}"
+                                                 class="ui-button-warning"
+                                                 icon="pi pi-plus"
+                                                 action="#{categoryListBean.redirectPageWidthId('/view/crudCategory', 0, 'c')}"
+                                                 rendered="#{connectionBean.verifyPermissionUser('category:insert')}"
+                                                 iconPos="right"/>
+                            </div>
+                        </div>
+
+                        <div class="containerFlex containerTableHeaderFilter containerTableHeaderOrder">
+                            <div class="flexGrowOne">
+                                <i class="#{categoryListBean.getOrderIcon('categoryname')}" onclick="clickNext(this)"/>
+                                <p:commandButton type="hidden" action="#{categoryListBean.editOrderTable('categoryname')}" update="@form"/>
+                            </div>
+
+                            <p:outputPanel class="flexGrowOne" rendered="#{connectionBean.verifyPermissionUser('category:update')}">
+                                <!-- no filter for button (edit). -->
+                                <i class="pi pi-circle-off visibilityHidden" />
+                            </p:outputPanel>
+                            <p:outputPanel class="flexGrowOne" rendered="#{connectionBean.verifyPermissionUser('category:delete')}">
+                                <!-- no filter for button (delete). -->
+                                <i class="pi pi-circle-off visibilityHidden" />
+                            </p:outputPanel>
+
+                        </div>
+
+                    </f:facet>
+
+                    <p:column headerText="#{I18N['application.listpage.name']}" class="columnTableListResearchWord">
+                        <h:outputText value="#{category.categoryName}"/>
+                    </p:column>
+
+                    <!-- button column _____________________________________________ -->
+
+                    <p:column headerText="#{I18N['application.listpage.headerlistedit']}" rendered="#{connectionBean.verifyPermissionUser('category:update')}">
+                        <i class="pi pi-pencil" onclick="clickNext(this)"/>
+                        <p:commandButton type="hidden" action="#{categoryListBean.redirectPageWidthId('/view/crudCategory', category.id, 'u')}"/>
+                    </p:column>
+
+                    <p:column headerText="#{I18N['application.listpage.headerlistdelete']}" rendered="#{connectionBean.verifyPermissionUser('category:delete')}">
+                        <i class="pi pi-times-circle" onclick="clickNextConfirm(this, 'confirmDelete')"/>
+                        <p:commandButton type="hidden" action="#{categoryListBean.deleteEntity(category.id, connectionBean.verifyPermissionUser('category:delete'))}"/>
+                    </p:column>
+
+                </p:dataTable>
+
+                <!-- when table was full load, call wordResearch class. -->
+                <f:metadata>
+                    <f:event type="preRenderView" listener="#{categoryListBean.applyResearchWordClass()}"/>
+                </f:metadata>
+
+                <!-- message i18n for delete processing -->
+                <p:outputPanel class="hidden">
+                    <span class="confirmDelete">
+                        <h:outputText value="#{I18N['application.listpage.messageconfirmdelete']}"/>
+                    </span>
+                    <span class="errorDeleteBecauseJoin">
+                        <h:outputText value="#{I18N['application.listpage.errordeletebecausejoin']}"/>
+                    </span>
+                    <span class="successDelete">
+                        <h:outputText value="#{I18N['application.listpage.successdelete']}"/>
+                    </span>
+                    <span class="errorProcessDelete">
+                        <h:outputText value="#{I18N['application.listpage.errorprocessdelete']}"/>
+                    </span>
+                </p:outputPanel>
+
+            </h:form>
+
+        </div>
+    </ui:define>
+</ui:composition>
+
+<!-- ______ ______ -->
+
+</html>

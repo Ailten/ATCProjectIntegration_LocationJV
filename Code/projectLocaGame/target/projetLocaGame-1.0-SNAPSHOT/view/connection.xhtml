@@ -1,0 +1,76 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:p="http://primefaces.org/ui">
+<ui:composition template="/WEB-INF/templates/connectionTemplate.xhtml">
+    <ui:define name="title">
+        #{I18N['application.connectionpage.title']}
+    </ui:define>
+    <ui:define name="content">
+
+
+        <f:metadata>
+            <!-- save historic. -->
+            <f:event type="preRenderView" listener="#{historicalBean.saveNewPageHistoric('/view/registration')}"/>
+            <!-- execute methode in loading page. -->
+            <f:event type="preRenderView" listener="#{i18nBean.loadLanguagePage}"/>
+        </f:metadata>
+
+        <h:form id="headerLanguageButtonContainer">
+            <p:menuButton value="#{I18N['application.header.language']}" class="ui-button-warning" iconPos="right">
+
+                <p:menuitem value="#{I18N['application.header.languagefr']}" action="#{i18nBean.changeLanguage('fr','headerLanguageButtonContainer')}"/>
+                <p:menuitem value="#{I18N['application.header.languageen']}" action="#{i18nBean.changeLanguage('en','headerLanguageButtonContainer')}"/>
+
+            </p:menuButton>
+        </h:form>
+
+        <div class ="containers">
+            <h1>
+                <h:outputText value="#{I18N['application.connectionpage.title']}" />
+            </h1>
+            <h:form>
+
+                <div id="j_idt29:messageLastName" role="alert" aria-atomic="true"
+                     aria-live="polite" class="ui-message ui-message-error ui-widget ui-corner-all #{connectionBean.messageErrorConnection}">
+                    <div><span class="ui-message-error-icon"> </span>
+                        <span class="ui-message-error-detail" id="j_idt29:messageLastName_error-detail"><h:outputText
+                                value="#{I18N['application.connectionpage.messageerror']}"/></span>
+                    </div></div>
+
+                <h5>#{I18N['application.connectionpage.mailtitle']}</h5>
+                <span class="ui-float-label">
+                    <p:inputText id="float-input" value="#{connectionBean.userForm.mail}"
+                                 placeholder="#{I18N['application.connectionpage.mailplaceholder']}">
+                    </p:inputText>
+                </span>
+
+
+                <h5>#{I18N['application.connectionpage.passwordtitle']}</h5>
+                <span class="ui-float-label">
+                <p:password id="toggle" value="#{connectionBean.password}" toggleMask="true"
+                            redisplay="true"
+                            placeholder="#{I18N['application.connectionpage.passwordplaceholder']}">
+                </p:password>
+                </span>
+
+
+                <div class="spaceformeConnection">
+                    <p:commandButton value="#{I18N['application.connectionpage.buttonsubmit']}"
+                                     action="#{connectionBean.connection}" class="ui-button-success" update="@form"/>
+                </div>
+
+            </h:form>
+            <div class="spaceformeConnection">
+                <p:commandButton value="#{I18N['application.connectionpage.buttonreturn']}" action="#{connectionBean.goToPageAccueil}"
+                                 class="ui-button-danger" id="cancelButtonSignUp"/>
+            </div>
+             <p class ="spaceBottomConnection">#{I18N['application.connectionpage.messageinscription']}<h:link value="#{I18N['application.connectionpage.linkinscription']}" outcome="/view/registrationCustomer"/></p>
+        </div>
+
+    </ui:define>
+</ui:composition>
+</html>

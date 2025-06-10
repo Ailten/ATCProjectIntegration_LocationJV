@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html lang="fr"
+      xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html">
+
+<!-- ______ ______ -->
+
+<div class="containerFlex">
+    <div id="footerLeftBlock" class="flexGrowOne blockFooter">
+        <p>
+            <!-- adresse store (rue + num). -->
+            <h:outputText value="#{storeBean.store.streetStore}, #{storeBean.store.numberStore}"/>
+        </p>
+        <p>
+            <!-- adresse store (postal code + city + contry). -->
+            <h:outputText value="#{storeBean.store.idCity.postalCode} #{storeBean.store.idCity.cityName} (#{storeBean.store.idCity.idCountry.countryName})"/>&nbsp;
+        </p>
+        <p>&nbsp;</p>
+    </div>
+    <div id="footerCenterBlock" class="flexGrowOne blockFooter">
+        <p>
+            <h:outputText value="#{I18N['application.footer.phoneStore']} #{storeBean.store.phone}"/>&nbsp;
+        </p>
+        <p>&nbsp;</p>
+        <p>
+            <h:outputText value="#{I18N['application.footer.copyright']}"/>
+        </p>
+    </div>
+    <div id="footerRightBlock" class="flexGrowOne blockFooter">
+        <p>
+            <h:outputText value="#{I18N['application.footer.storeHoursLineOne']}"/>
+        </p>
+        <p>
+            <h:outputText value="#{I18N['application.footer.storeHoursLineTwo']}"/>
+        </p>
+        <p>&nbsp;</p>
+    </div>
+</div>
+
+<div id="footerBottom">
+
+</div>
+
+<!-- ______ ______ -->
+
+</html>

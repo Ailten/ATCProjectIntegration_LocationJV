@@ -1,0 +1,136 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:ui="http://java.sun.com/jsf/facelets" xmlns:h="http://java.sun.com/jsf/html">
+
+<!-- ______ ______ -->
+
+<ui:composition template="/WEB-INF/templates/simple.xhtml">
+    <ui:define name="title">
+        <h:outputText value="#{I18N['application.header.createeditor']}" rendered="#{editorBean.isModeSelected('c')}"/>
+        <h:outputText value="#{I18N['application.header.detaileditor']}" rendered="#{editorBean.isModeSelected('r')}"/>
+        <h:outputText value="#{I18N['application.header.editeditor']}" rendered="#{editorBean.isModeSelected('u')}"/>
+    </ui:define>
+    <ui:define name="content">
+
+        <!-- load editor selected from other page. + save historic.-->
+        <f:metadata>
+            <f:event type="preRenderView" listener="#{editorBean.loadEditorSelected(editorListBean)}"/>
+            <f:event type="preRenderView" listener="#{historicalBean.saveNewPageHistoric('/view/crudEditor')}"/>
+        </f:metadata>
+
+        <div class ="containers">
+
+            <!-- error loading message -->
+            <p:outputPanel rendered="#{editorBean.elementCrudIsErrorLoad()}">
+                <h2>
+                    <h:outputText value="#{I18N['application.crudpage.errorloadtitle']}"/>
+                </h2>
+                <p class="textCenter">
+                    <h:outputText value="#{I18N['application.crudeditorpage.errorloadeditormessage']}"/>
+                </p>
+            </p:outputPanel>
+
+            <!-- no error -->
+            <p:outputPanel rendered="#{editorBean.elementCrudIsSuccessLoad()}">
+
+                <div>
+                    <h2>
+                        <h:outputText value="#{I18N['application.crudeditorpage.titlepagecreate']}"
+                                      rendered="#{editorBean.isModeSelected('c')}"/>
+                        <h:outputText value="#{I18N['application.crudeditorpage.titlepageread']}"
+                                      rendered="#{editorBean.isModeSelected('r')}"/>
+                        <h:outputText value="#{I18N['application.crudeditorpage.titlepageupdate']}"
+                                      rendered="#{editorBean.isModeSelected('u')}"/>
+                    </h2>
+                </div>
+
+                <!-- Main form start ________________________________________________________________ -->
+                <h:form class="responsiveForm" id="formCrudEditor">
+
+                    <div>
+                        <h3 class="titreSectionH3">
+                            <h:outputText value="#{I18N['application.crudeditorpage.titleeditor']}"/>
+                        </h3>
+                    </div>
+
+                    <!-- editor name -->
+                    <p:outputPanel class="responsiveInput">
+                        <span>
+                            <p:outputLabel for="inputEditorName" value="#{I18N['application.crudeditorpage.labeleditorname']}"/>
+                            <p:inputText id="inputEditorName"
+                                         required="true"
+                                         disabled="#{editorBean.isModeSelected('r')}"
+                                         value="#{editorBean.elementCrudSelected.editorName}"
+                                         placeholder="#{I18N['application.crudeditorpage.placeholdereditorname']}"
+                                         validatorMessage="#{I18N['application.crudeditorpage.messageerroreditorname']}">
+                                <p:ajax event="keyup" update="messageEditorName"/>
+                            </p:inputText>
+                        </span>
+                        <p:message id="messageEditorName" for="inputEditorName"/>
+                    </p:outputPanel>
+
+
+                    <!-- input submit -->
+
+
+                    <!-- message error submit -->
+                    <p:outputPanel class="responsiveInput ui-message ui-message-error ui-widget ui-corner-all manyToManyError"
+                                   rendered="#{editorBean.getErrorSubmitDB()}"
+                                   role="alert" aria-atomic="true" aria-live="polite">
+                        <div>
+                            <span class="ui-message-error-icon"> </span>
+                            <span class="ui-message-error-detail message-succes-detail" >
+                                    <h:outputText value="#{I18N['application.crudpage.messageerrorsubmit']}"/>
+                                </span>
+                        </div>
+                    </p:outputPanel>
+
+                    <span class="responsiveSubmit">
+                        <p:commandButton value="#{I18N['application.crudpage.buttoncreatesubmit']}"
+                                         rendered="#{editorBean.isModeSelected('c')}"
+                                         ajax="false"
+                                         validateClient="true"
+                                         class="ui-button-success"
+                                         action="#{editorBean.submitForm(historicalBean, connectionBean.verifyPermissionUser('editor:insert'))}"/>
+                        <p:commandButton value=""
+                                         rendered="#{editorBean.isModeSelected('r')}"
+                                         ajax="false"
+                                         validateClient="true"
+                                         class="ui-button-success hiddenBlock"
+                                         action="#{editorBean.submitForm(historicalBean, connectionBean.verifyPermissionUser('editor:details'))}"/>
+                        <p:commandButton value="#{I18N['application.crudpage.buttonupdatesubmit']}"
+                                         rendered="#{editorBean.isModeSelected('u')}"
+                                         ajax="false"
+                                         validateClient="true"
+                                         class="ui-button-success"
+                                         action="#{editorBean.submitForm(historicalBean, connectionBean.verifyPermissionUser('editor:update'))}"/>
+                    </span>
+
+                </h:form>
+
+                <div class="responsiveForm positionCancel">
+                    <span class="responsiveSubmit">
+                        <span class="flexGrowOne"> </span>
+                            <p:commandButton id="cancelButtonSignUp"
+                                             value="#{I18N['application.crudpage.buttonbacklastpage']}"
+                                             action="#{historicalBean.backLastPageHistoric()}"
+                                             class="ui-button-danger"
+                                             immediate="true"/>
+                    </span>
+                </div>
+
+                <!-- Main form end ________________________________________________________________ -->
+
+            </p:outputPanel>
+
+        </div>
+
+    </ui:define>
+</ui:composition>
+
+<!-- ______ ______ -->
+
+</html>

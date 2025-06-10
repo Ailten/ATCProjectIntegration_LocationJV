@@ -1,0 +1,156 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:jsp="http://java.sun.com/JSP/Page"
+      xmlns:ui="http://java.sun.com/jsf/facelets" xmlns:h="http://java.sun.com/jsf/html">
+
+<!-- ______ ______ -->
+
+<ui:composition template="/WEB-INF/templates/simple.xhtml">
+    <ui:define name="title">
+        #{I18N['application.header.menulistusers']}
+    </ui:define>
+    <ui:define name="content">
+
+        <!-- save historic. -->
+        <f:metadata>
+            <f:event type="preRenderView" listener="#{historicalBean.saveNewPageHistoric('/view/userList')}"/>
+        </f:metadata>
+
+        <div id="userList">
+
+            <div>
+                <h2>
+                    <h:outputText value="#{I18N['application.header.menulistusers']}"/>
+                </h2>
+            </div>
+
+            <h:form>
+
+
+                <!-- reload SQL request. -->
+                <f:metadata>
+                    <f:event type="preRenderView" listener="#{userListBean.initialiseUserFiltered()}"/>
+                </f:metadata>
+
+                <p:dataTable
+                        var="user"
+                        value="#{userListBean.userFiltered}"
+                        class="tableHeaderNoPadding tableHeaderTitleCenter"
+                        paginator="true"
+                        paginatorPosition="bottom"
+                        paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                        currentPageReportTemplate="{startRecord}-{endRecord} #{I18N['application.listpage.pagitionone']} {totalRecords}  #{I18N['application.listpage.pagitiontwo']} "
+                        rowsPerPageTemplate="1,5,10,20"
+                        rows="5">
+                    <f:facet name="header">
+
+                        <div class="containerFlex containerTableHeaderFilter">
+                            <div class="flexGrowOne">
+                                <p:inputText value="#{userListBean.filter}"
+                                             onkeyup="researchTable(this)"
+                                             placeholder="#{I18N['application.listpage.filter']}"/>
+                                <p:commandButton type="hidden" update="@form"/>
+                            </div>
+                            <div class="flexGrowOne containerRedirectButtonTable">
+                                <p:commandButton value="#{I18N['application.listpage.addelementbutton']}" class="ui-button-warning"
+                                                 action="#{userListBean.redirectPageWidthId('/view/addUpdateDeleteUser', 0, 'c')}"
+                                                 icon="pi pi-plus" iconPos="right"/>
+                            </div>
+                        </div>
+
+                        <div class="containerFlex containerTableHeaderFilter containerTableHeaderOrder">
+                            <div class="flexGrowOne">
+                                <i class="#{userListBean.getOrderIcon('lastName')}" onclick="clickNext(this)"/>
+                                <p:commandButton type="hidden" action="#{userListBean.editOrderTable('lastName')}" update="@form"/>
+                            </div>
+                            <div class="flexGrowOne">
+                                <i class="#{userListBean.getOrderIcon('firstName')}" onclick="clickNext(this)"/>
+                                <p:commandButton type="hidden" action="#{userListBean.editOrderTable('firstName')}" update="@form"/>
+                            </div>
+                            <div class="flexGrowOne">
+                                <i class="#{userListBean.getOrderIcon('phone')}" onclick="clickNext(this)"/>
+                                <p:commandButton type="hidden" action="#{userListBean.editOrderTable('phone')}" update="@form"/>
+                            </div>
+                            <div class="flexGrowOne">
+                                <i class="#{userListBean.getOrderIcon('mail')}" onclick="clickNext(this)"/>
+                                <p:commandButton type="hidden" action="#{userListBean.editOrderTable('mail')}" update="@form"/>
+                            </div>
+                            <div class="flexGrowOne">
+                                <i class="#{userListBean.getOrderIcon('idRole')}" onclick="clickNext(this)"/>
+                                <p:commandButton type="hidden" action="#{userListBean.editOrderTable('idRole')}" update="@form"/>
+                            </div>
+                            <div class="flexGrowOne">
+                                <i class="#{userListBean.getOrderIcon('enable')}" onclick="clickNext(this)"/>
+                                <p:commandButton type="hidden" action="#{userListBean.editOrderTable('enable')}" update="@form"/>
+                            </div>
+
+                            <div class="flexGrowOne">
+                                <!-- no filter for button (edit). -->
+                                <i class="pi pi-circle-off visibilityHidden" />
+
+
+                            </div>
+                            <div class="flexGrowOne">
+                                <!-- no filter for button (details). -->
+                                <i class="pi pi-circle-off visibilityHidden" />
+
+                            </div>
+
+                        </div>
+
+                    </f:facet>
+
+                    <p:column headerText="#{I18N['application.userlistpage.headerlistlastname']}" class="columnTableListResearchWord">
+                        <h:outputText value="#{user.lastName}"/>
+                    </p:column>
+
+                    <p:column headerText="#{I18N['application.userlistpage.headerlistfirstname']}" class="columnTableListResearchWord">
+                        <h:outputText value="#{user.firstName}"/>
+                    </p:column>
+
+                    <p:column headerText="#{I18N['application.userlistpage.headerlistphone']}" class="columnTableListResearchWord">
+                        <h:outputText value="#{user.phone}"/>
+                    </p:column>
+
+                    <p:column headerText="#{I18N['application.userlistpage.headerlistmail']}" class="columnTableListResearchWord">
+                        <h:outputText value="#{user.mail}"/>
+                    </p:column>
+
+                    <p:column headerText="#{I18N['application.userlistpage.headerlistidRole']}" class="columnTableListResearchWord">
+                        <h:outputText value="#{user.idRole.roleName}"/>
+                    </p:column>
+
+                    <p:column headerText="#{I18N['application.userlistpage.headerlistidenable']}">
+                        <h:outputText value="#{user.getEnableFormatStr()}" class="#{user.enableClassColor}"/>
+                    </p:column>
+
+                    <!-- button column -->
+
+                    <p:column headerText="#{I18N['application.listpage.headerlistedit']}">
+                        <i class="pi pi-pencil" onclick="clickNext(this)"/>
+                        <p:commandButton type="hidden" action="#{userListBean.redirectPageWidthId('/view/welcome', user.id)}"/>
+                    </p:column>
+
+                    <p:column headerText="#{I18N['application.listpage.headerlistdetails']}">
+                        <i class="pi pi-info-circle" onclick="clickNext(this)"/>
+                        <p:commandButton type="hidden" action="#{userListBean.redirectPageWidthId('/view/welcome', user.id)}"/>
+                    </p:column>
+
+                </p:dataTable>
+            </h:form>
+
+            <!-- when table was full load, call work Research class. -->
+            <f:metadata>
+                <f:event type="preRenderView" listener="#{userListBean.applyResearchWordClass()}"/>
+            </f:metadata>
+
+
+        </div>
+    </ui:define>
+</ui:composition>
+<!-- ______ ______ -->
+
+</html>

@@ -1,0 +1,231 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:jsp="http://java.sun.com/JSP/Page"
+      xmlns:ui="http://java.sun.com/jsf/facelets" xmlns:h="http://java.sun.com/jsf/html">
+
+<!-- ______ ______ -->
+
+<ui:composition template="/WEB-INF/templates/simple.xhtml">
+    <ui:define name="title">
+        #{I18N['application.header.menulistcatalog']}
+    </ui:define>
+    <ui:define name="content">
+
+        <!-- save historic. -->
+        <f:metadata>
+            <f:event type="preRenderView" listener="#{historicalBean.saveNewPageHistoric('/view/catalog')}"/>
+        </f:metadata>
+
+        <div id="catalogue">
+
+            <div>
+                <h2>
+                    <h:outputText value="#{I18N['application.header.menulistcatalog']}"/>
+                </h2>
+            </div>
+
+            <h:form>
+
+                <!-- load list research catalog. -->
+                <f:metadata>
+                    <f:event type="preRenderView" listener="#{pricePlatformListBean.doResearch()}"/>
+                </f:metadata>
+
+                <p:dataTable
+                        var="pricePlatform"
+                        value="#{pricePlatformListBean.entityFiltered}"
+                        class="tableHeaderNoPadding tableHeaderTitleCenter"
+                        paginator="true"
+                        paginatorPosition="bottom"
+                        paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                        currentPageReportTemplate="{startRecord}-{endRecord} sur {totalRecords} elements"
+                        rowsPerPageTemplate="5,10,20"
+                        rows="5">
+
+                    <f:facet name="header">
+
+                        <div class="containerFlex containerTableHeaderFilter">
+                            <div class="flexGrowOne">
+                                <p:inputText value="#{pricePlatformListBean.filter}"
+                                             onkeyup="researchTable(this)"
+                                             id="catalogInputResearch"
+                                             validatorMessage="#{I18N['application.listpage.messageerrorresearch']}"
+                                             placeholder="#{I18N['application.listpage.filter']}"/>
+                                <p:commandButton type="hidden" update="@form" class="reloadResearchForm"/>
+                            </div>
+                            <div class="flexGrowOne">
+                                <p:message id="catalogMessageResearch" for="catalogInputResearch"/>
+                            </div>
+                            <div class="flexGrowOne containerRedirectButtonTable">
+                                <p:commandButton value="#{I18N['application.listpage.addelementbutton']}"
+                                                 class="ui-button-warning"
+                                                 icon="pi pi-plus"
+                                                 action="#{pricePlatformListBean.redirectPageWidthId('/view/crudPricePlatform', 0, 'c')}"
+                                                 rendered="#{connectionBean.verifyPermissionUser('priceplatform:insert')}"
+                                                 iconPos="right"/>
+                            </div>
+                        </div>
+
+                        <div class="containerFlex containerTableHeaderFilter containerTableHeaderOrder">
+
+                            <!-- product name -->
+                            <div class="flexGrowOne">
+                                <i class="#{pricePlatformListBean.getOrderIcon('productname')}" onclick="clickNext(this)"/>
+                                <p:commandButton type="hidden" action="#{pricePlatformListBean.editOrderTable('productname')}" update="@form"/>
+                            </div>
+
+                            <!-- category -->
+                            <div class="flexGrowOne">
+                                <i class="pi pi-circle-off visibilityHidden" />
+                            </div>
+
+                            <!-- platform -->
+                            <div class="flexGrowOne">
+                                <i class="pi pi-circle-off visibilityHidden" />
+                            </div>
+
+                            <!-- language -->
+                            <div class="flexGrowOne">
+                                <i class="pi pi-circle-off visibilityHidden" />
+                            </div>
+
+                            <div class="flexGrowOne">
+                                <i class="#{pricePlatformListBean.getOrderIcon('pegi')}" onclick="clickNext(this)"/>
+                                <p:commandButton type="hidden" action="#{pricePlatformListBean.editOrderTable('pegi')}" update="@form"/>
+                            </div>
+                            <div class="flexGrowOne">
+                                <i class="#{pricePlatformListBean.getOrderIcon('rentalprice')}" onclick="clickNext(this)"/>
+                                <p:commandButton type="hidden" action="#{pricePlatformListBean.editOrderTable('rentalprice')}" update="@form"/>
+                            </div>
+                            <div class="flexGrowOne">
+                                <i class="#{pricePlatformListBean.getOrderIcon('enable')}" onclick="clickNext(this)"/>
+                                <p:commandButton type="hidden" action="#{pricePlatformListBean.editOrderTable('enable')}" update="@form"/>
+                            </div>
+
+                            <p:outputPanel class="flexGrowOne" rendered="#{connectionBean.verifyNotPermissionUser('priceplatform:update')}">
+                                <!-- no filter for button (details). -->
+                                <i class="pi pi-circle-off visibilityHidden" />
+                            </p:outputPanel>
+                            <p:outputPanel class="flexGrowOne" rendered="#{connectionBean.verifyPermissionUser('priceplatform:update')}">
+                                <!-- no filter for button (edit). -->
+                                <i class="pi pi-circle-off visibilityHidden" />
+                            </p:outputPanel>
+                            <p:outputPanel class="flexGrowOne" rendered="#{connectionBean.verifyPermissionUser('priceplatform:addbasket')}">
+                                <!-- no filter for button (basket). -->
+                                <i class="pi pi-circle-off visibilityHidden" />
+                            </p:outputPanel>
+                            <p:outputPanel class="flexGrowOne" rendered="#{connectionBean.verifyPermissionUser('priceplatform:delete')}">
+                                <!-- no filter for button (delete). -->
+                                <i class="pi pi-circle-off visibilityHidden" />
+                            </p:outputPanel>
+
+                        </div>
+
+                    </f:facet>
+
+                    <p:column headerText="#{I18N['application.listpage.name']}" class="columnTableListResearchWord">
+                        <h:outputText value="#{pricePlatform.pricePlatformName}"/>
+                    </p:column>
+
+                    <!-- get category concat. (from product, from jointure, from category) -->
+                    <p:column headerText="#{I18N['application.cataloglistpage.headerlistcategoryname']}" class="columnTableListResearchWord">
+                        <!--<h:outputText value="#{pricePlatform.idProduct.listCategory.size()}"/>-->
+                        <h:outputText value="#{I18N['application.cataloglistpage.nothing']}" class="colorSilver" rendered="#{pricePlatform.idProduct.listCategory.size() == 0}"/>
+                        <ui:repeat value="#{pricePlatform.idProduct.listCategory}" var="category">
+                            <p>
+                                <h:outputText value="#{category.categoryName}"/>
+                            </p>
+                        </ui:repeat>
+                    </p:column>
+
+                    <!-- get platform concat. (from jointure, from platform) -->
+                    <p:column headerText="#{I18N['application.cataloglistpage.headerlistplatformname']}" class="columnTableListResearchWord">
+                        <h:outputText value="#{pricePlatform.idPlatform.platformName}"/>
+                    </p:column>
+
+                    <!-- get language concat. (from product, from jointure, from language) -->
+                    <p:column headerText="#{I18N['application.cataloglistpage.headerlistlanguagename']}" class="columnTableListResearchWord">
+                        <!--<h:outputText value="#{pricePlatform.idProduct.productName}"/>-->
+                        <h:outputText value="#{I18N['application.cataloglistpage.nothing']}" class="colorSilver" rendered="#{pricePlatform.idProduct.listLanguageGame.size() == 0}"/>
+                        <ui:repeat value="#{pricePlatform.idProduct.listLanguageGame}" var="platform">
+                            <p>
+                                <h:outputText value="#{platform.languageName}"/>
+                            </p>
+                        </ui:repeat>
+                    </p:column>
+
+                    <p:column headerText="#{I18N['application.cataloglistpage.headerlistpegi']}">
+                        <h:outputText value="pegi #{pricePlatform.idProduct.getPegiFormatStr()}"/>
+                    </p:column>
+
+                    <p:column headerText="#{I18N['application.cataloglistpage.headerlistprice']}">
+                        <h:outputText value="#{pricePlatform.getRentalPriceFormatStr()}€/s"/>
+                    </p:column>
+
+                    <p:column headerText="#{I18N['application.cataloglistpage.headerlistenable']}">
+                        <h:outputText value="#{((pricePlatform.getEnableForDisabledButton())? 'disponible': 'indisponible')}" class="#{((pricePlatform.getEnableForDisabledButton())? 'colorGreen': 'colorRed')}"/>
+                        <!--<i class="#{pricePlatform.enableFormatIco}"/>-->
+                    </p:column>
+
+                    <!-- button column _____________________________________________ -->
+
+                    <p:column headerText="#{I18N['application.listpage.headerlistdetails']}" rendered="#{connectionBean.verifyNotPermissionUser('priceplatform:update')}">
+                        <i class="pi pi-info-circle" onclick="clickNext(this)"/>
+                        <p:commandButton type="hidden" action="#{pricePlatformListBean.redirectPageWidthId('/view/crudPricePlatform', pricePlatform.id, 'r')}"/>
+                    </p:column>
+
+                    <p:column headerText="#{I18N['application.listpage.headerlistedit']}" rendered="#{connectionBean.verifyPermissionUser('priceplatform:update')}">
+                        <i class="pi pi-pencil" onclick="clickNext(this)"/>
+                        <p:commandButton type="hidden" action="#{pricePlatformListBean.redirectPageWidthId('/view/crudPricePlatform', pricePlatform.id, 'u')}"/>
+                    </p:column>
+
+                    <p:column headerText="#{I18N['application.listpage.headerlistilbasket']}" rendered="#{connectionBean.verifyPermissionUser('priceplatform:addbasket')}">
+                        <i class="pi pi-cart-plus #{((pricePlatform.getEnableForDisabledButton())? '': 'disabledButtonIcon')}" onclick="clickNextIfNotDisabled(this)"/>
+                        <p:commandButton type="hidden" action="#{pricePlatformListBean.AddBasket(pricePlatform.id, (pricePlatform.getEnableForDisabledButtonPermission(connectionBean.verifyPermissionUser('priceplatform:addbasket'))))}"/>
+                    </p:column>
+
+                    <p:column headerText="#{I18N['application.listpage.headerlistdelete']}" rendered="#{connectionBean.verifyPermissionUser('priceplatform:delete')}">
+                        <i class="pi pi-times-circle" onclick="clickNextConfirm(this, 'confirmDelete')"/>
+                        <p:commandButton type="hidden" action="#{pricePlatformListBean.deleteEntity(pricePlatform.id, connectionBean.verifyPermissionUser('priceplatform:delete'))}"/>
+                    </p:column>
+
+                </p:dataTable>
+
+                <!-- when table was full load, call wordResearch class. -->
+                <f:metadata>
+                    <f:event type="preRenderView" listener="#{pricePlatformListBean.applyResearchWordClass()}"/>
+                </f:metadata>
+
+                <!-- message i18n for delete and add basket processing -->
+                <p:outputPanel class="hidden">
+                    <span class="confirmDelete">
+                        <h:outputText value="#{I18N['application.listpage.messageconfirmdelete']}"/>
+                    </span>
+                    <span class="errorDeleteBecauseJoin">
+                        <h:outputText value="#{I18N['application.listpage.errordeletebecausejoin']}"/>
+                    </span>
+                    <span class="successDelete">
+                        <h:outputText value="#{I18N['application.listpage.successdelete']}"/>
+                    </span>
+                    <span class="errorProcessDelete">
+                        <h:outputText value="#{I18N['application.listpage.errorprocessdelete']}"/>
+                    </span>
+
+                    <span class="successAddBasket">
+                        <h:outputText value="#{I18N['application.listpage.successaddbasket']}"/>
+                    </span>
+                </p:outputPanel>
+
+            </h:form>
+
+        </div>
+    </ui:define>
+</ui:composition>
+
+<!-- ______ ______ -->
+
+</html>
+

@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html lang="fr"
+      xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:jsp="http://java.sun.com/JSP/Page"
+      xmlns:f="http://java.sun.com/jsf/core">
+
+<!-- ______ ______ -->
+
+<div class="containerFlex">
+
+    <!-- execute methode in loading page. -->
+    <f:metadata>
+        <f:event type="preRenderView" listener="#{i18nBean.loadLanguagePage}"/>
+    </f:metadata>
+
+    <div id="headerLogoBlock">
+        <h:graphicImage url="#{pageContext.request.contextPath}/images/logoLocaGame.png" id="headerLogo" alt="#{I18N['application.header.altlogo']}"/>
+        <h1>
+            <h:outputText value="#{I18N['application.header.title']}"/>
+        </h1>
+    </div>
+
+    <div id="headerMainContainer" class="flexGrowOne">
+
+    </div>
+
+    <div id="headerLoginBlock">
+
+        <span>
+            <p:commandButton value="#{I18N['application.header.connectionmessage']} #{connectionBean.user.firstName} #{connectionBean.user.lastName}" action="#{connectionBean.destroySession}" class="ui-button-warning " icon="pi pi-sign-out" rendered="#{connectionBean.user != null}" iconPos="right"/>
+        </span>
+
+        <p:commandButton value="#{I18N['application.header.loginbutton']}" action="#{connectionBean.goToPageConnection}" icon="pi pi-sign-in" class="ui-button-warning" rendered="#{connectionBean.user == null}" iconPos="right"/>
+
+        <h:form id="headerLanguageButtonContainer">
+            <p:menuButton value="#{I18N['application.header.language']}" class="headerLanguageButton ui-button-warning" iconPos="right">
+
+                <p:menuitem value="#{I18N['application.header.languagefr']}" action="#{i18nBean.changeLanguage('fr','headerLanguageButtonContainer')}"/>
+                <p:menuitem value="#{I18N['application.header.languageen']}" action="#{i18nBean.changeLanguage('en','headerLanguageButtonContainer')}"/>
+
+            </p:menuButton>
+        </h:form>
+
+        <div class="card" id="headerMenuButtonContainer">
+            <p:commandButton id="dynaButton" value="#{I18N['application.header.menutitle']}" type="button" icon="pi pi-bars" class="ui-button-warning headerMenuButton" iconPos="right"/>
+            <p:menu overlay="true" trigger="dynaButton" my="left top" at="left bottom">
+
+                <p:menuitem value="#{I18N['application.header.menulisthome']}" action="/accueil.xhtml"/>
+                <!--
+                <p:menuitem value="#{I18N['application.header.menulistaccount']}" action="/view/welcome.xhtml"/>
+                <p:menuitem value="#{I18N['application.header.menulistusers']}" action="/view/userList.xhtml"/>
+                -->
+                <p:menuitem value="#{I18N['application.header.menucopy']}" action="/view/listCopy.xhtml" rendered="#{connectionBean.verifyPermissionUser('copy:listCopy')}"/>
+                <p:menuitem value="#{I18N['application.header.menulistcatalog']}" action="/view/catalog.xhtml"/>
+                <p:menuitem value="#{I18N['application.header.menuproduct']}" action="/view/listProduct.xhtml" rendered="#{connectionBean.verifyPermissionUser('product:listProduct')}"/>
+                <p:menuitem value="#{I18N['application.header.menucategory']}" action="/view/listCategory.xhtml" rendered="#{connectionBean.verifyPermissionUser('category:listCategory')}"/>
+                <p:menuitem value="#{I18N['application.header.menueditor']}" action="/view/listEditor.xhtml" rendered="#{connectionBean.verifyPermissionUser('editor:listEditor')}"/>
+                <p:menuitem value="#{I18N['application.header.menuplatform']}" action="/view/listPlatform.xhtml" rendered="#{connectionBean.verifyPermissionUser('platform:listPlatform')}"/>
+                <!--
+                <p:menuitem value="#{I18N['application.header.menulistcart']}" action="/view/welcome.xhtml"/>
+                <p:menuitem value="#{I18N['application.header.menulistorders']}" action="/view/welcome.xhtml"/>
+                -->
+
+            </p:menu>
+        </div>
+
+    </div>
+
+</div>
+
+<!-- ______ ______ -->
+
+</html>

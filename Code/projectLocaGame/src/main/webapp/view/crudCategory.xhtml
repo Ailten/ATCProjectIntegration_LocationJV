@@ -1,0 +1,136 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:ui="http://java.sun.com/jsf/facelets" xmlns:h="http://java.sun.com/jsf/html">
+
+<!-- ______ ______ -->
+
+<ui:composition template="/WEB-INF/templates/simple.xhtml">
+    <ui:define name="title">
+        <h:outputText value="#{I18N['application.header.createcategory']}" rendered="#{categoryBean.isModeSelected('c')}"/>
+        <h:outputText value="#{I18N['application.header.detailcategory']}" rendered="#{categoryBean.isModeSelected('r')}"/>
+        <h:outputText value="#{I18N['application.header.editcategory']}" rendered="#{categoryBean.isModeSelected('u')}"/>
+    </ui:define>
+    <ui:define name="content">
+
+        <!-- load category selected from other page. + save historic.-->
+        <f:metadata>
+            <f:event type="preRenderView" listener="#{categoryBean.loadCategorySelected(categoryListBean)}"/>
+            <f:event type="preRenderView" listener="#{historicalBean.saveNewPageHistoric('/view/crudCategory')}"/>
+        </f:metadata>
+
+        <div class ="containers">
+
+            <!-- error loading message -->
+            <p:outputPanel rendered="#{categoryBean.elementCrudIsErrorLoad()}">
+                <h2>
+                    <h:outputText value="#{I18N['application.crudpage.errorloadtitle']}"/>
+                </h2>
+                <p class="textCenter">
+                    <h:outputText value="#{I18N['application.crudcategorypage.errorloadcategorymessage']}"/>
+                </p>
+            </p:outputPanel>
+
+            <!-- no error -->
+            <p:outputPanel rendered="#{categoryBean.elementCrudIsSuccessLoad()}">
+
+                <div>
+                    <h2>
+                        <h:outputText value="#{I18N['application.crudcategorypage.titlepagecreate']}"
+                                      rendered="#{categoryBean.isModeSelected('c')}"/>
+                        <h:outputText value="#{I18N['application.crudcategorypage.titlepageread']}"
+                                      rendered="#{categoryBean.isModeSelected('r')}"/>
+                        <h:outputText value="#{I18N['application.crudcategorypage.titlepageupdate']}"
+                                      rendered="#{categoryBean.isModeSelected('u')}"/>
+                    </h2>
+                </div>
+
+                <!-- Main form start ________________________________________________________________ -->
+                <h:form class="responsiveForm" id="formCrudCategory">
+
+                    <div>
+                        <h3 class="titreSectionH3">
+                            <h:outputText value="#{I18N['application.crudcategorypage.titlecategory']}"/>
+                        </h3>
+                    </div>
+
+                    <!-- category name -->
+                    <p:outputPanel class="responsiveInput">
+                        <span>
+                            <p:outputLabel for="inputCategoryName" value="#{I18N['application.crudcategorypage.labelcategoryname']}"/>
+                            <p:inputText id="inputCategoryName"
+                                         required="true"
+                                         disabled="#{categoryBean.isModeSelected('r')}"
+                                         value="#{categoryBean.elementCrudSelected.categoryName}"
+                                         placeholder="#{I18N['application.crudcategorypage.placeholdercategoryname']}"
+                                         validatorMessage="#{I18N['application.crudcategorypage.messageerrorcategoryname']}">
+                                <p:ajax event="keyup" update="messageCategoryName"/>
+                            </p:inputText>
+                        </span>
+                        <p:message id="messageCategoryName" for="inputCategoryName"/>
+                    </p:outputPanel>
+
+
+                    <!-- input submit -->
+
+
+                    <!-- message error submit -->
+                    <p:outputPanel class="responsiveInput ui-message ui-message-error ui-widget ui-corner-all manyToManyError"
+                                   rendered="#{copyBean.getErrorSubmitDB()}"
+                                   role="alert" aria-atomic="true" aria-live="polite">
+                        <div>
+                            <span class="ui-message-error-icon"> </span>
+                            <span class="ui-message-error-detail message-succes-detail" >
+                                    <h:outputText value="#{I18N['application.crudpage.messageerrorsubmit']}"/>
+                                </span>
+                        </div>
+                    </p:outputPanel>
+
+                    <span class="responsiveSubmit">
+                        <p:commandButton value="#{I18N['application.crudpage.buttoncreatesubmit']}"
+                                         rendered="#{categoryBean.isModeSelected('c')}"
+                                         ajax="false"
+                                         validateClient="true"
+                                         class="ui-button-success"
+                                         action="#{categoryBean.submitForm(historicalBean, connectionBean.verifyPermissionUser('category:insert'))}"/>
+                        <p:commandButton value=""
+                                         rendered="#{categoryBean.isModeSelected('r')}"
+                                         ajax="false"
+                                         validateClient="true"
+                                         class="ui-button-success hiddenBlock"
+                                         action="#{categoryBean.submitForm(historicalBean, connectionBean.verifyPermissionUser('category:details'))}"/>
+                        <p:commandButton value="#{I18N['application.crudpage.buttonupdatesubmit']}"
+                                         rendered="#{categoryBean.isModeSelected('u')}"
+                                         ajax="false"
+                                         validateClient="true"
+                                         class="ui-button-success"
+                                         action="#{categoryBean.submitForm(historicalBean, connectionBean.verifyPermissionUser('category:update'))}"/>
+                    </span>
+
+                </h:form>
+
+                <div class="responsiveForm positionCancel">
+                    <span class="responsiveSubmit">
+                        <span class="flexGrowOne"> </span>
+                            <p:commandButton id="cancelButtonSignUp"
+                                             value="#{I18N['application.crudpage.buttonbacklastpage']}"
+                                             action="#{historicalBean.backLastPageHistoric()}"
+                                             class="ui-button-danger"
+                                             immediate="true"/>
+                    </span>
+                </div>
+
+                <!-- Main form end ________________________________________________________________ -->
+
+            </p:outputPanel>
+
+        </div>
+
+    </ui:define>
+</ui:composition>
+
+<!-- ______ ______ -->
+
+</html>

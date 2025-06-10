@@ -1,0 +1,424 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:ui="http://java.sun.com/jsf/facelets" xmlns:h="http://java.sun.com/jsf/html">
+
+<!-- ______ ______ -->
+
+<ui:composition template="/WEB-INF/templates/simple.xhtml">
+    <ui:define name="title">
+        <h:outputText value="#{I18N['application.header.createproduct']}" rendered="#{productBean.isModeSelected('c')}"/>
+        <h:outputText value="#{I18N['application.header.detailproduct']}" rendered="#{productBean.isModeSelected('r')}"/>
+        <h:outputText value="#{I18N['application.header.editproduct']}" rendered="#{productBean.isModeSelected('u')}"/>
+    </ui:define>
+    <ui:define name="content">
+
+        <!-- load product selected from other page. + save historic.-->
+        <f:metadata>
+            <f:event type="preRenderView" listener="#{productBean.loadProductSelected(productListBean)}"/>
+            <f:event type="preRenderView" listener="#{historicalBean.saveNewPageHistoric('/view/crudProduct')}"/>
+        </f:metadata>
+
+        <div class ="containers">
+
+            <!-- error loading message -->
+            <p:outputPanel rendered="#{productBean.elementCrudIsErrorLoad()}">
+                <h2>
+                    <h:outputText value="#{I18N['application.crudpage.errorloadtitle']}"/>
+                </h2>
+                <p class="textCenter">
+                    <h:outputText value="#{I18N['application.crudproductpage.errorloadproductmessage']}"/>
+                </p>
+            </p:outputPanel>
+
+            <!-- no error -->
+            <p:outputPanel rendered="#{productBean.elementCrudIsSuccessLoad()}">
+
+                <div>
+                    <h2>
+                        <h:outputText value="#{I18N['application.crudproductpage.titlepagecreate']}"
+                                      rendered="#{productBean.isModeSelected('c')}"/>
+                        <h:outputText value="#{I18N['application.crudproductpage.titlepageread']}"
+                                      rendered="#{productBean.isModeSelected('r')}"/>
+                        <h:outputText value="#{I18N['application.crudproductpage.titlepageupdate']}"
+                                      rendered="#{productBean.isModeSelected('u')}"/>
+                    </h2>
+                </div>
+
+                <!-- Main form start ________________________________________________________________ -->
+                <h:form class="responsiveForm" id="formCrudProduct">
+
+                    <div>
+                        <h3 class="titreSectionH3">
+                            <h:outputText value="#{I18N['application.crudproductpage.titleproduct']}"/>
+                        </h3>
+                    </div>
+
+                    <!-- product name -->
+                    <p:outputPanel class="responsiveInput">
+                        <span>
+                            <p:outputLabel for="inputProductName" value="#{I18N['application.crudproductpage.labelproductname']}"/>
+                            <p:inputText id="inputProductName"
+                                         required="true"
+                                         disabled="#{productBean.isModeSelected('r')}"
+                                         value="#{productBean.elementCrudSelected.productName}"
+                                         placeholder="#{I18N['application.crudproductpage.placeholderproductname']}"
+                                         validatorMessage="#{I18N['application.crudproductpage.messageerrorproductname']}">
+                                <p:ajax event="keyup" update="messageProductName"/>
+                            </p:inputText>
+                        </span>
+                        <p:message id="messageProductName" for="inputProductName"/>
+                    </p:outputPanel>
+
+                    <!-- editor (combo box) -->
+                    <p:outputPanel class="responsiveInput">
+                        <span>
+                            <p:outputLabel for="inputProductEditor" value="#{I18N['application.crudproductpage.labelproducteditor']}"/>
+                            <p:selectOneMenu id="inputProductEditor"
+                                             value="#{productBean.elementCrudSelected.idEditor}"
+                                             disabled="#{productBean.isModeSelected('r')}"
+                                             converter="EditorConverter"
+                                             effect="fade"
+                                             var="e"
+                                             filter="true"
+                                             filterMatchMode="startsWith"
+                                             required="true"
+                                             validatorMessage="#{I18N['application.crudproductpage.messageerrorproducteditor']}">
+                                <!-- reload list editor from db. -->
+                                <f:metadata>
+                                    <f:event type="preRenderView" listener="#{productBean.initAllEditor()}"/>
+                                </f:metadata>
+                                <f:selectItem itemLabel="#{I18N['application.crudproductpage.placeholderproducteditor']}"
+                                              itemValue="#{null}"/>
+                                <f:selectItems value="#{productBean.allEditor}"
+                                               var="editor"
+                                               itemLabel="#{editor.editorName}"
+                                               itemValue="#{editor}"/>
+                                <p:column>
+                                    <f:facet name="header">
+                                        <h:outputText value="#{I18N['application.listpage.name']}"/>
+                                    </f:facet>
+                                    <h:outputText value="#{e.editorName}"/>
+                                </p:column>
+                                <p:ajax event="change" update="messageProductEditor"/>
+                            </p:selectOneMenu>
+                        </span>
+                        <p:message id="messageProductEditor" for="inputProductEditor"/>
+                    </p:outputPanel>
+
+
+                    <!-- Category -->
+                    <p:outputPanel class="responsiveManyToMany" id="manyToManyCategoryPanel">
+                        <p:outputPanel rendered="#{productBean.isNotModeSelected('r')}">
+                            <h4>
+                                <h:outputText value="#{I18N['application.crudproductpage.titlecategoryenable']}"/>
+                            </h4>
+                            <!-- reload list category from db. -->
+                            <f:metadata>
+                                <f:event type="preRenderView" listener="#{productBean.initAllCategory()}"/>
+                            </f:metadata>
+                            <p:scrollPanel class="scrollPanelManyToMany">
+                                <p:outputPanel class="manyToManyRow manyToManyNotFoundMessage"
+                                               rendered="#{productBean.allCategory.size() == 0}">
+                                    <h:outputText value="#{I18N['application.crudproductpage.categoriesnotfound']}"/>
+                                </p:outputPanel>
+                                <ui:repeat value="${productBean.allCategory}"
+                                           var="category">
+                                    <p:outputPanel class="manyToManyRow">
+                                        <div>
+                                            <h:outputText value="#{category.categoryName}"/>
+                                        </div>
+                                        <div>
+                                            <p:commandButton class="ui-button-warning"
+                                                             icon="pi pi-plus"
+                                                             action="#{productBean.applyCategory(category.id)}"
+                                                             update=":formCrudProduct:manyToManyCategoryPanel :formCrudProduct:categoryError :formCrudProduct:inputAfterManyCategory"
+                                                             immediate="true"
+                                                             disabled="#{productBean.isCategoryInCategoryApply(category.id)}"/>
+                                        </div>
+                                    </p:outputPanel>
+                                </ui:repeat>
+                            </p:scrollPanel>
+                        </p:outputPanel>
+                        <p:outputPanel rendered="#{productBean.isModeSelected('r')}"> </p:outputPanel>
+                        <p:outputPanel>
+                            <h4>
+                                <h:outputText value="#{I18N['application.crudproductpage.titlecategoryapply']}"/>
+                            </h4>
+                            <p:scrollPanel class="scrollPanelManyToMany">
+                                <p:outputPanel class="manyToManyRow manyToManyNotFoundMessage"
+                                               rendered="#{productBean.listCategoryApply.size() == 0}">
+                                    <h:outputText value="#{I18N['application.crudproductpage.categoriesnotfound']}"/>
+                                </p:outputPanel>
+                                <ui:repeat value="${productBean.listCategoryApply}"
+                                           var="category">
+                                    <p:outputPanel class="manyToManyRow #{((productBean.isModeSelected('r'))? 'lineManyToManyWithoutButton':'')}">
+                                        <div>
+                                            <h:outputText value="#{category.categoryName}"/>
+                                        </div>
+                                        <div>
+                                            <p:commandButton class="ui-button-warning"
+                                                             icon="pi pi-minus"
+                                                             action="#{productBean.deleteCategoryApply(category.id)}"
+                                                             update=":formCrudProduct:manyToManyCategoryPanel :formCrudProduct:categoryError :formCrudProduct:inputAfterManyCategory"
+                                                             immediate="true"
+                                                             rendered="#{productBean.isNotModeSelected('r')}"/>
+                                        </div>
+                                    </p:outputPanel>
+                                </ui:repeat>
+                            </p:scrollPanel>
+                        </p:outputPanel>
+                    </p:outputPanel>
+                    <p:outputPanel id="categoryError">
+                        <p:outputPanel rendered="#{productBean.isCategoryApplyError()}"
+                                       class="ui-message ui-message-error ui-widget ui-corner-all manyToManyError"
+                                       role="alert" aria-atomic="true" aria-live="polite">
+                            <div>
+                                <span class="ui-message-error-icon"> </span>
+                                <span id="categoryErrorMessage"
+                                      class="ui-message-error-detail message-succes-detail" >
+                                    <h:outputText value="#{I18N['application.crudproductpage.messageerrorproductcategory']}"/>
+                                </span>
+                            </div>
+                        </p:outputPanel>
+                    </p:outputPanel>
+
+                    <!-- Multyplayer -->
+                    <p:outputPanel class="responsiveInput #{((productBean.isCategoryApplyError())? '': 'marginTop40px')}" id="inputAfterManyCategory">
+                        <span>
+                            <p:outputLabel for="inputProductMultyPlayer" value="#{I18N['application.crudproductpage.labelproductmultiplayer']}"/>
+                            <p:selectOneMenu id="inputProductMultyPlayer"
+                                             value="#{productBean.elementCrudSelected.multiPlayer}"
+                                             disabled="#{productBean.isModeSelected('r')}"
+                                             converter="MultyPlayerConverter"
+                                             required="true"
+                                             validatorMessage="#{I18N['application.crudproductpage.messageerrorproductmultiplayer']}">
+                                <f:selectItem itemLabel="#{I18N['application.crudproductpage.placeholderproductmultiplayer']}"
+                                              itemValue="#{null}"/>
+                                <!-- import all enum -->
+                                <p:importEnum type="adrien.faouzi.enumeration.MultiPlayer"
+                                              var="enumImportMultiPlayer"
+                                              allSuffix="getAll"/>
+                                <f:selectItems value="#{enumImportMultiPlayer.getAll}"
+                                               var="multiPlayer"
+                                               itemLabel="#{multiPlayer.getMultiPlayer()}"
+                                               itemValue="#{multiPlayer}"/>
+                                <p:ajax event="change" update="messageProductMultiPlayer"/>
+                            </p:selectOneMenu>
+                        </span>
+                        <p:message id="messageProductMultiPlayer" for="inputProductMultyPlayer"/>
+                    </p:outputPanel>
+
+                    <!-- Pegi -->
+                    <p:outputPanel class="responsiveInput">
+                        <span>
+                            <p:outputLabel for="inputProductPegi" value="#{I18N['application.crudproductpage.labelproductpegi']}"/>
+                            <p:selectOneMenu id="inputProductPegi"
+                                             value="#{productBean.elementCrudSelected.pegi}"
+                                             disabled="#{productBean.isModeSelected('r')}"
+                                             converter="PegiConverter"
+                                             required="true"
+                                             validatorMessage="#{I18N['application.crudproductpage.messageerrorproductpegi']}">
+                                <f:selectItem itemLabel="#{I18N['application.crudproductpage.placeholderproductpegi']}"
+                                              itemValue="#{null}"/>
+                                <!-- import all enum -->
+                                <p:importEnum type="adrien.faouzi.enumeration.Pegi"
+                                              var="enumImportPegi"
+                                              allSuffix="getAll"/>
+                                <f:selectItems value="#{enumImportPegi.getAll}"
+                                               var="pegi"
+                                               itemLabel="#{pegi.getPegi()}"
+                                               itemValue="#{pegi}"/>
+                                <p:ajax event="change" update="messageProductPegi"/>
+                            </p:selectOneMenu>
+                        </span>
+                        <p:message id="messageProductPegi" for="inputProductPegi"/>
+                    </p:outputPanel>
+
+                    <!-- Language -->
+                    <p:outputPanel class="responsiveManyToMany" id="manyToManyLanguagePanel">
+                        <p:outputPanel rendered="#{productBean.isNotModeSelected('r')}">
+                            <h4>
+                                <h:outputText value="#{I18N['application.crudproductpage.titlelanguageenable']}"/>
+                            </h4>
+                            <!-- reload list language from db. -->
+                            <f:metadata>
+                                <f:event type="preRenderView" listener="#{productBean.initAllLanguage()}"/>
+                            </f:metadata>
+                            <p:scrollPanel class="scrollPanelManyToMany">
+                                <p:outputPanel class="manyToManyRow manyToManyNotFoundMessage"
+                                               rendered="#{productBean.allLanguage.size() == 0}">
+                                    <h:outputText value="#{I18N['application.crudproductpage.languagesnotfound']}"/>
+                                </p:outputPanel>
+                                <ui:repeat value="${productBean.allLanguage}"
+                                           var="language">
+                                    <p:outputPanel class="manyToManyRow">
+                                        <div>
+                                            <h:outputText value="#{language.languageName}"/>
+                                        </div>
+                                        <div>
+                                            <p:commandButton class="ui-button-warning"
+                                                             icon="pi pi-plus"
+                                                             action="#{productBean.applyLanguage(language.id)}"
+                                                             update=":formCrudProduct:manyToManyLanguagePanel :formCrudProduct:languageError :formCrudProduct:inputAfterManyLanguage"
+                                                             immediate="true"
+                                                             disabled="#{productBean.isLanguageInLanguageApply(language.id)}"/>
+                                        </div>
+                                    </p:outputPanel>
+                                </ui:repeat>
+                            </p:scrollPanel>
+                        </p:outputPanel>
+                        <p:outputPanel rendered="#{productBean.isModeSelected('r')}"> </p:outputPanel>
+                        <p:outputPanel>
+                            <h4>
+                                <h:outputText value="#{I18N['application.crudproductpage.titlelanguageapply']}"/>
+                            </h4>
+                            <p:scrollPanel class="scrollPanelManyToMany">
+                                <p:outputPanel class="manyToManyRow manyToManyNotFoundMessage"
+                                               rendered="#{productBean.listLanguageApply.size() == 0}">
+                                    <h:outputText value="#{I18N['application.crudproductpage.languagesnotfound']}"/>
+                                </p:outputPanel>
+                                <ui:repeat value="${productBean.listLanguageApply}"
+                                           var="language">
+                                    <p:outputPanel class="manyToManyRow #{((productBean.isModeSelected('r'))? 'lineManyToManyWithoutButton':'')}">
+                                        <div>
+                                            <h:outputText value="#{language.languageName}"/>
+                                        </div>
+                                        <div>
+                                            <p:commandButton class="ui-button-warning"
+                                                             icon="pi pi-minus"
+                                                             action="#{productBean.deleteLanguageApply(language.id)}"
+                                                             update=":formCrudProduct:manyToManyLanguagePanel :formCrudProduct:languageError :formCrudProduct:inputAfterManyLanguage"
+                                                             immediate="true"
+                                                             rendered="#{productBean.isNotModeSelected('r')}"/>
+                                        </div>
+                                    </p:outputPanel>
+                                </ui:repeat>
+                            </p:scrollPanel>
+                        </p:outputPanel>
+                    </p:outputPanel>
+                    <p:outputPanel id="languageError">
+                        <p:outputPanel rendered="#{productBean.isLanguageApplyError()}"
+                                       class="ui-message ui-message-error ui-widget ui-corner-all manyToManyError"
+                                       role="alert" aria-atomic="true" aria-live="polite">
+                            <div>
+                                <span class="ui-message-error-icon"> </span>
+                                <span id="languageErrorMessage"
+                                      class="ui-message-error-detail message-succes-detail" >
+                                    <h:outputText value="#{I18N['application.crudproductpage.messageerrorproductlanguage']}"/>
+                                </span>
+                            </div>
+                        </p:outputPanel>
+                    </p:outputPanel>
+
+                    <!-- releaseDate -->
+                    <p:outputPanel class="responsiveInput #{((productBean.isLanguageApplyError())? '': 'marginTop40px')}" id="inputAfterManyLanguage">
+                        <span>
+                            <p:outputLabel for="inputProductDateRelease" value="#{I18N['application.crudproductpage.labelproductdaterelease']}"/>
+                            <p:datePicker id="inputProductDateRelease"
+                                          required="true"
+                                          showTime="false"
+                                          timeInput="false"
+                                          value="#{productBean.elementCrudSelected.releaseDate}"
+                                          disabled="#{productBean.isModeSelected('r')}"
+                                          placeholder="#{I18N['application.inscriptionpage.dayofbirthplaceholder']}"
+                                          validatorMessage="#{I18N['application.inscriptionpage.messageerrordayofbirth']}">
+                                <p:ajax event="change" update="messageProductDateRelease"/>
+                            </p:datePicker>
+                        </span>
+                        <p:message id="messageProductDateRelease" for="inputProductDateRelease"/>
+                    </p:outputPanel>
+
+                    <!-- description -->
+                    <p:outputPanel class="responsiveInput">
+                        <span>
+                            <p:outputLabel for="inputProductDescription" value="#{I18N['application.crudproductpage.labelproductdescription']}"/>
+                            <p:inputTextarea rows="6"
+                                             cols="33"
+                                             id="inputProductDescription"
+                                             value="#{productBean.elementCrudSelected.description}"
+                                             disabled="#{productBean.isModeSelected('r')}"
+                                             placeholder="#{I18N['application.crudproductpage.placeholderproductdescription']}"
+                                             validatorMessage="#{I18N['application.crudproductpage.messageerrorproductdescription']}">
+                                <p:ajax event="change" update="messageProductDescription"/>
+                            </p:inputTextarea>
+                        </span>
+                        <p:message id="messageProductDescription" for="inputProductDescription"/>
+                    </p:outputPanel>
+
+                    <!-- enable -->
+                    <p:outputPanel class="responsiveInput">
+                        <span>
+                            <p:outputLabel for="inputProductEnable" value="#{I18N['application.crudproductpage.labelproductenable']}"/>
+                            <p:selectBooleanCheckbox class="ui-button-warning checkBoxForm"
+                                                     disabled="#{productBean.isModeSelected('r')}"
+                                                     value="#{productBean.elementCrudSelected.enable}"
+                                                     id="inputProductEnable"/>
+                        </span>
+                        <p:message id="messageProductEnable" for="inputProductEnable"/>
+                    </p:outputPanel>
+
+
+                    <!-- input submit -->
+
+
+                    <!-- message error submit -->
+                    <p:outputPanel class="responsiveInput ui-message ui-message-error ui-widget ui-corner-all manyToManyError"
+                                   rendered="#{productBean.getErrorSubmitDB()}"
+                                   role="alert" aria-atomic="true" aria-live="polite">
+                        <div>
+                            <span class="ui-message-error-icon"> </span>
+                            <span class="ui-message-error-detail message-succes-detail" >
+                                    <h:outputText value="#{I18N['application.crudpage.messageerrorsubmit']}"/>
+                                </span>
+                        </div>
+                    </p:outputPanel>
+
+                    <span class="responsiveSubmit">
+                        <p:commandButton value="#{I18N['application.crudpage.buttoncreatesubmit']}"
+                                         rendered="#{productBean.isModeSelected('c')}"
+                                         ajax="false"
+                                         validateClient="true"
+                                         class="ui-button-success"
+                                         action="#{productBean.submitForm(historicalBean, connectionBean.verifyPermissionUser('product:insert'))}"/>
+                        <p:commandButton value=""
+                                         rendered="#{productBean.isModeSelected('r')}"
+                                         ajax="false"
+                                         validateClient="true"
+                                         class="ui-button-success hiddenBlock"
+                                         action="#{productBean.submitForm(historicalBean, connectionBean.verifyPermissionUser('product:details'))}"/>
+                        <p:commandButton value="#{I18N['application.crudpage.buttonupdatesubmit']}"
+                                         rendered="#{productBean.isModeSelected('u')}"
+                                         ajax="false"
+                                         validateClient="true"
+                                         class="ui-button-success"
+                                         action="#{productBean.submitForm(historicalBean, connectionBean.verifyPermissionUser('product:update'))}"/>
+                    </span>
+
+                </h:form>
+
+                <div class="responsiveForm positionCancel">
+                    <span class="responsiveSubmit">
+                        <span class="flexGrowOne"> </span>
+                            <p:commandButton id="cancelButtonSignUp"
+                                             value="#{I18N['application.crudpage.buttonbacklastpage']}"
+                                             action="#{historicalBean.backLastPageHistoric()}"
+                                             class="ui-button-danger"
+                                             immediate="true"/>
+                    </span>
+                </div>
+
+                <!-- Main form end ________________________________________________________________ -->
+
+            </p:outputPanel>
+
+        </div>
+
+    </ui:define>
+</ui:composition>
+
+<!-- ______ ______ -->
+
+</html>
